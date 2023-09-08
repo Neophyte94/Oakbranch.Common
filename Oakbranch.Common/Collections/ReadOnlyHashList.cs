@@ -1,20 +1,32 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents a read-only collection of ordered unique elements.
+    /// <para>Implements <see cref="IReadOnlyList{T}"/>.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ReadOnlyHashList<T> : IReadOnlyList<T>
     {
+        #region Constants
+
         private const int HashSetThreshold = 10;
+
+        #endregion
+
+        #region Instance members
 
         private readonly T[] m_Items;
 
         private readonly int m_Count;
         public int Count => m_Count;
+
+        #endregion
+
+        #region Instance indexers
 
         public T this[int index]
         {
@@ -25,6 +37,10 @@ namespace Oakbranch.Common.Collections
                 return m_Items[index];
             }
         }
+
+        #endregion
+
+        #region Instance constructors
 
         public ReadOnlyHashList()
         {
@@ -48,7 +64,9 @@ namespace Oakbranch.Common.Collections
             for (int i = 0; i != count;)
             {
                 item = items[i++];
-                if (item == null) throw new ArgumentException("Null references are not allowed.");
+                if (item == null)
+                    throw new ArgumentException("Null references are not allowed.");
+
                 if (!Contains(ref hashSet, item))
                 {
                     m_Items[m_Count++] = item;
@@ -62,7 +80,9 @@ namespace Oakbranch.Common.Collections
             HashSet<T> hashSet = null;
             foreach (T item in items)
             {
-                if (item == null) throw new ArgumentException("Null references are not allowed.");
+                if (item == null)
+                    throw new ArgumentException("Null references are not allowed.");
+
                 if (!Contains(ref hashSet, item))
                 {
                     EnsureCapacity(ref m_Items, m_Count + 1);
@@ -73,21 +93,29 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlyHashList(IReadOnlyList<T> items)
         {
-            if (items == null) throw new ArgumentNullException(nameof(items));
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
             int count = items.Count;
             m_Items = new T[count];
             HashSet<T> hashSet = null;
             T item;
+
             for (int i = 0; i != count;)
             {
                 item = items[i++];
-                if (item == null) throw new ArgumentException("Null references are not allowed.");
+                if (item == null)
+                    throw new ArgumentException("Null references are not allowed.");
                 if (!Contains(ref hashSet, item))
                 {
                     m_Items[m_Count++] = item;
                 }
             }
         }
+
+        #endregion
+
+        #region Instance methods
 
         private void EnsureCapacity(ref T[] buffer, int capacity)
         {
@@ -137,5 +165,7 @@ namespace Oakbranch.Common.Collections
         {
             return GetEnumerator();
         }
+
+        #endregion
     }
 }

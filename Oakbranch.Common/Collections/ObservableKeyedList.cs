@@ -6,6 +6,12 @@ using System.ComponentModel;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents a list of uniquely identified elements that can be accessed by their keys.
+    /// <para>Implements <see cref="IObservableList{T}"/> and <see cref="IDisposable"/>.</para>
+    /// </summary>
+    /// <typeparam name="TKey">The type of keys that uniquely identify elements in the list.</typeparam>
+    /// <typeparam name="TValue">The type of elements in the list.</typeparam>
     public abstract class ObservableKeyedList<TKey, TValue> : IObservableList<TValue>, IDisposable
     {
         #region Static members

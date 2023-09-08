@@ -3,10 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Text;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents a set of unique elements that allows tracking changes to it.
+    /// <para>Impements <see cref="IObservableCollection{T}"/> and <see cref="IDisposable"/>.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ObservableSet<T> : IObservableCollection<T>, IDisposable
     {
         #region Instance members

@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents a list that can be made immutable at some point.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class FreezableList<T> : IList<T>
     {
         #region Instance members
@@ -19,11 +23,7 @@ namespace Oakbranch.Common.Collections
 
         private int m_Version = int.MinValue;
 
-#if DEBUG
-        private readonly int m_InitialCapacity;
-#endif
-
-#endregion
+        #endregion
 
         #region Instance indexers
 
@@ -35,6 +35,7 @@ namespace Oakbranch.Common.Collections
             }
             set
             {
+                ThrowExceptionIfFrozen();
                 Insert(index, value);
             }
         }
@@ -51,9 +52,6 @@ namespace Oakbranch.Common.Collections
         public FreezableList(int capacity)
         {
             m_Items = new T[Math.Max(capacity, 1)];
-#if DEBUG
-            m_InitialCapacity = capacity;
-#endif
         }
 
         public FreezableList(T[] items)
@@ -96,6 +94,12 @@ namespace Oakbranch.Common.Collections
 
         #region Instance methods
 
+        /// <summary>
+        /// Adds the given item to the end of the list.
+        /// <para>Throws <see cref="InvalidOperationException"/> if the list has been frozen.</para>
+        /// </summary>
+        /// <param name="item">The item to add.</param>
+        /// <exception cref="InvalidOperationException"/>
         public void Add(T item)
         {
             ThrowExceptionIfFrozen();
@@ -104,6 +108,11 @@ namespace Oakbranch.Common.Collections
             ++m_Version;
         }
 
+        /// <summary>
+        /// Clears the content of the list.
+        /// <para>Throws <see cref="InvalidOperationException"/> if the list has been frozen.</para>
+        /// </summary>
+        /// <exception cref="InvalidOperationException"/>
         public void Clear()
         {
             ThrowExceptionIfFrozen();
@@ -168,12 +177,24 @@ namespace Oakbranch.Common.Collections
             }
         }
 
+        /// <summary>
+        /// Inserts the given item at the specified index.
+        /// <para>Throws <see cref="InvalidOperationException"/> if the list has been frozen.</para>
+        /// </summary>
+        /// <param name="index">The index to insert the item at.</param>
+        /// <param name="item">The item to insert.</param>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        /// <exception cref="InvalidOperationException"/>
         public void Insert(int index, T item)
         {
             if (index == m_Count)
             {
                 Add(item);
                 return;
+            }
+            else if (index > m_Count || index < 0)
+            {
+                throw new IndexOutOfRangeException();
             }
 
             ThrowExceptionIfFrozen();
@@ -184,6 +205,13 @@ namespace Oakbranch.Common.Collections
             ++m_Version;
         }
 
+        /// <summary>
+        /// Removes the first occurrence of the given item from the list.
+        /// <para>Throws <see cref="InvalidOperationException"/> if the list has been frozen.</para>
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <returns><see langword="true"/> if the item has been removed, <see langword="false"/> if it has not been found.</returns>
+        /// <exception cref="InvalidOperationException"/>
         public bool Remove(T item)
         {
             ThrowExceptionIfFrozen();
@@ -195,6 +223,13 @@ namespace Oakbranch.Common.Collections
             return true;
         }
 
+        /// <summary>
+        /// Removes the item at the specified index from the list.
+        /// <para>Throws <see cref="InvalidOperationException"/> if the list has been frozen.</para>
+        /// </summary>
+        /// <param name="index">The zero-based index to remove an item at.</param>
+        /// <exception cref="IndexOutOfRangeException"/>
+        /// <exception cref="InvalidOperationException"/>
         public void RemoveAt(int index)
         {
             ThrowExceptionIfFrozen();
@@ -220,6 +255,10 @@ namespace Oakbranch.Common.Collections
             }
         }
 
+        /// <summary>
+        /// Makes the list immutable.
+        /// <para>The value of <see cref="IsReadOnly"/> constantly becomes <see langword="true"/> after the call.</para>
+        /// </summary>
         public void Freeze()
         {
             m_IsReadOnly = true;
@@ -228,7 +267,7 @@ namespace Oakbranch.Common.Collections
         private void ThrowExceptionIfFrozen()
         {
             if (m_IsReadOnly)
-                throw new InvalidOperationException("A list cannot be muted any more since it has been frozen.");
+                throw new InvalidOperationException("This list cannot be modified any more since it has been frozen.");
         }
 
         public IEnumerator<T> GetEnumerator()

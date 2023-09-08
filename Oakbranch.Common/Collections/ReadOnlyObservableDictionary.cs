@@ -4,15 +4,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Text;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents an immutable collection of key/value pairs that can formally be observed.
+    /// <para>Implements <see cref="IReadOnlyObservableDictionary{TKey, TValue}"/> and <see cref="IDisposable"/>.</para>
+    /// </summary>
+    /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
     public sealed class ReadOnlyObservableDictionary<TKey, TValue> : IReadOnlyObservableDictionary<TKey, TValue>, IDisposable
     {
-        private readonly ReadOnlyDictionary<TKey, TValue> m_Dictionary;
+        #region Instance members
 
-        public TValue this[TKey key] => m_Dictionary[key];
+        private readonly ReadOnlyDictionary<TKey, TValue> m_Dictionary;
 
         public IEnumerable<TKey> Keys => m_Dictionary.Keys;
 
@@ -20,8 +25,53 @@ namespace Oakbranch.Common.Collections
 
         public int Count => m_Dictionary.Count;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        private bool m_IsDisposed;
+
+        #endregion
+
+        #region Instance indexers
+
+        public TValue this[TKey key] => m_Dictionary[key];
+
+        #endregion
+
+        #region Instance events
+
+#pragma warning disable IDE0052
+        // The event is only formal and never actually raised.
+        private PropertyChangedEventHandler m_PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                if (!m_IsDisposed)
+                    m_PropertyChanged += value;
+            }
+            remove
+            {
+                m_PropertyChanged -= value;
+            }
+        }
+
+        // The event is only formal and never actually raised.
+        private NotifyCollectionChangedEventHandler m_CollectionChanged;
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add
+            {
+                if (!m_IsDisposed)
+                    m_CollectionChanged += value;
+            }
+            remove
+            {
+                m_CollectionChanged -= value;
+            }
+        }
+#pragma warning restore IDE0052
+
+        #endregion
+
+        #region Instance constructors
 
         public ReadOnlyObservableDictionary(IEnumerable<TValue> values, Func<TValue, TKey> selector)
         {
@@ -71,6 +121,10 @@ namespace Oakbranch.Common.Collections
             m_Dictionary = new ReadOnlyDictionary<TKey, TValue>(source);
         }
 
+        #endregion
+
+        #region Instance methods
+
         public bool ContainsKey(TKey key) => m_Dictionary.ContainsKey(key);
 
         public bool TryGetValue(TKey key, out TValue value) => m_Dictionary.TryGetValue(key, out value);
@@ -81,8 +135,14 @@ namespace Oakbranch.Common.Collections
 
         public void Dispose()
         {
-            PropertyChanged = null;
-            CollectionChanged = null;
+            if (!m_IsDisposed)
+            {
+                m_PropertyChanged = null;
+                m_CollectionChanged = null;
+                m_IsDisposed = true;
+            }
         }
+
+        #endregion
     }
 }

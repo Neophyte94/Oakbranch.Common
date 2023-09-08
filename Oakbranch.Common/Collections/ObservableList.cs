@@ -6,6 +6,11 @@ using System.ComponentModel;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Representa a light-weight list of elements that allows tracking changes to it.
+    /// <para>Implements <see cref="IObservableList{T}"/> and <see cref="IDisposable"/>.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ObservableList<T> : IObservableList<T>, IDisposable
     {
         #region Instance members

@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace Oakbranch.Common.Collections
 {
+    /// <summary>
+    /// Represents a light-weight immutable collection of elements that can be accessed by index.
+    /// <para>Implements <see cref="IReadOnlyList{T}"/>.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ReadOnlyList<T> : IReadOnlyList<T>
     {
         #region Instance members
