@@ -46,6 +46,8 @@ namespace Oakbranch.Common.Numerics
 
         #endregion
 
+        #region Instance methods
+
         public override bool Equals(object other)
         {
             if (other is DecimalRange range2)
@@ -63,6 +65,15 @@ namespace Oakbranch.Common.Numerics
             return (unchecked(-458777235 * -1521134295) + Floor.GetHashCode()) * -1521134295 + Ceil.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            return $"[{Floor} ; {Ceil}]";
+        }
+
+        #endregion
+
+        #region Operators
+
         public static bool operator ==(DecimalRange x, DecimalRange y)
         {
             return decimal.Equals(x.Floor, y.Floor) && decimal.Equals(x.Ceil, y.Ceil);
@@ -73,9 +84,6 @@ namespace Oakbranch.Common.Numerics
             return !(x == y);
         }
 
-        public override string ToString()
-        {
-            return $"[{Floor} ; {Ceil}]";
-        }
+        #endregion
     }
 }
