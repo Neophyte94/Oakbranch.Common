@@ -10,7 +10,15 @@ namespace Oakbranch.Common.Numerics
     {
         #region Static members
 
-        public static DoubleRange Undefined => new DoubleRange(double.NegativeInfinity, double.PositiveInfinity);
+        /// <summary>
+        /// Gets the instance of <see cref="DoubleRange"/> representing an undefined range.
+        /// </summary>
+        public static DoubleRange Undefined => new DoubleRange(double.NaN, double.NaN);
+
+        /// <summary>
+        /// Gets the instance of <see cref="DoubleRange"/> representing an unbounded range.
+        /// </summary>
+        public static DoubleRange Infinite => new DoubleRange(double.NegativeInfinity, double.PositiveInfinity);
 
         #endregion
 
@@ -27,15 +35,25 @@ namespace Oakbranch.Common.Numerics
         public readonly double Ceil;
 
         /// <summary>
-        /// Gets a boolean value indicating whether both bounds of a range are real (non-infinite) numbers.
+        /// Gets the difference between <see cref="Ceil"/> and <see cref="Floor"/>. 
         /// </summary>
-        public bool IsDetermined
-        {
-            get
-            {
-                return !double.IsInfinity(Floor) && !double.IsInfinity(Ceil);
-            }
-        }
+        public double Span => Ceil - Floor;
+
+        /// <summary>
+        /// Gets a boolean value indicating whether both bounds of the range are finite numbers.
+        /// </summary>
+        public bool IsFinite => double.IsFinite(Floor) && double.IsFinite(Ceil);
+
+        /// <summary>
+        /// Gets a boolean value indicating whether both bounds of the range are normal numbers.
+        /// <para>A number is considered normal if it's finite and not zero.</para>
+        /// </summary>
+        public bool IsNormal => double.IsNormal(Floor) && double.IsNormal(Ceil);
+
+        /// <summary>
+        /// Gets a boolean value indicating whether the range's span is approximately zero.
+        /// </summary>
+        public bool IsEmpty => Span.ApprZero();
 
         #endregion
 
@@ -63,6 +81,8 @@ namespace Oakbranch.Common.Numerics
 
         #endregion
 
+        #region Instance methods
+
         public override bool Equals(object other)
         {
             if (other is DoubleRange range2)
@@ -80,6 +100,15 @@ namespace Oakbranch.Common.Numerics
             return (unchecked(-458777235 * -1521134295) + Floor.GetHashCode()) * -1521134295 + Ceil.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            return $"[{Floor} ; {Ceil}]";
+        }
+
+        #endregion
+
+        #region Operators
+
         public static bool operator ==(DoubleRange x, DoubleRange y)
         {
             return MathUtility.ApprEqual(in x.Floor, in y.Floor) && MathUtility.ApprEqual(in x.Ceil, in y.Ceil);
@@ -90,9 +119,6 @@ namespace Oakbranch.Common.Numerics
             return !(x == y);
         }
 
-        public override string ToString()
-        {
-            return $"[{Floor} ; {Ceil}]";
-        }
+        #endregion
     }
 }
