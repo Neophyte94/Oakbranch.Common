@@ -42,20 +42,42 @@ namespace Oakbranch.Common.Numerics
         /// <summary>
         /// Gets a boolean value indicating whether both bounds of the range are finite numbers.
         /// </summary>
-        public bool IsFinite => double.IsFinite(Floor) && double.IsFinite(Ceil);
+        public bool IsFinite
+        {
+            get
+            {
+#if NET_7_0
+                return double.IsFinite(Floor) && double.IsFinite(Ceil);
+#else
+                return MathUtility.IsReal(Floor) && MathUtility.IsReal(Ceil);
+#endif
+            }
+            
+        }
 
         /// <summary>
         /// Gets a boolean value indicating whether both bounds of the range are normal numbers.
         /// <para>A number is considered normal if it's finite and not zero.</para>
         /// </summary>
-        public bool IsNormal => double.IsNormal(Floor) && double.IsNormal(Ceil);
+        public bool IsNormal
+        {
+            get
+            {
+#if NET_7_0
+                return double.IsNormal(Floor) && double.IsNormal(Ceil);
+#else
+                return IsFinite && !MathUtility.ApprZero(Floor) && !MathUtility.ApprZero(Ceil);
+#endif
+            }
+
+        }
 
         /// <summary>
         /// Gets a boolean value indicating whether the range's span is approximately zero.
         /// </summary>
         public bool IsEmpty => Span.ApprZero();
 
-        #endregion
+#endregion
 
         #region Instance constructors
 
