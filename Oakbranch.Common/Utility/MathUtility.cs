@@ -11,31 +11,39 @@ namespace Oakbranch.Common.Utility
     public static class MathUtility
     {
         /// <summary>
-        /// A multiplier for efficiently transforming seconds to minutes.
+        /// Defines the multiplier that converts degress to radians.
+        /// </summary>
+        public const double DegToRadMultiplier = Math.PI / 180.0;
+        /// <summary>
+        /// Defines the multiplier that converts radians to degrees.
+        /// </summary>
+        public const double RadToDegMultiplier = 180.0 / Math.PI;
+        /// <summary>
+        /// Defines the multiplier that converts seconds to minutes.
         /// </summary>
         public const float SecToMinsMultiplier = (float)(1.0 / 60.0);
         /// <summary>
-        /// A multiplier for efficiently transforming milliseconds to minutes.
+        /// Defines the multiplier that converts milliseconds to minutes.
         /// </summary>
         public const float MsToMinsMultiplier = (float)(1.0 / 60000.0);
         /// <summary>
-        /// Represents a value of the inverted normal distribution function with the standard parameters for the probability 0.999.
+        /// Represents the value of the inverted normal distribution function with the standard parameters for the probability 0.999.
         /// </summary>
         public const float InvStdNormDistribution0999 = 3.090232306f;
         /// <summary>
-        /// Represents a value of the inverted normal distribution function with the standard parameters for the probability 0.995.
+        /// Represents the value of the inverted normal distribution function with the standard parameters for the probability 0.995.
         /// </summary>
         public const float InvStdNormDistribution0995 = 2.575829304f;
         /// <summary>
-        /// Represents a value of the inverted normal distribution function with the standard parameters for the probability 0.990.
+        /// Represents the value of the inverted normal distribution function with the standard parameters for the probability 0.990.
         /// </summary>
         public const float InvStdNormDistribution0990 = 2.326347874f;
         /// <summary>
-        /// Represents a value of the inverted normal distribution function with the standard parameters for the probability 0.980.
+        /// Represents the value of the inverted normal distribution function with the standard parameters for the probability 0.980.
         /// </summary>
         public const float InvStdNormDistribution0980 = 2.053748911f;
         /// <summary>
-        /// Represents a value of the inverted normal distribution function with the standard parameters for the probability 0.950.
+        /// Represents the value of the inverted normal distribution function with the standard parameters for the probability 0.950.
         /// </summary>
         public const float InvStdNormDistribution0950 = 1.644853627f;
 
