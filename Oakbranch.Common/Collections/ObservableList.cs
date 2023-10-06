@@ -28,6 +28,10 @@ namespace Oakbranch.Common.Collections
         private bool m_IsDisposed;
         protected bool IsDisposed => m_IsDisposed;
 
+        #endregion
+
+        #region Instance indexers
+
         public T this[int index]
         {
             get
@@ -50,7 +54,7 @@ namespace Oakbranch.Common.Collections
                         if (itemToRemove != null) OnItemRemoved(itemToRemove);
                         if (value != null) OnItemAdded(value);
                     }
-                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+                    RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                         NotifyCollectionChangedAction.Replace, value, itemToRemove, index));
                 }
             }
@@ -65,13 +69,13 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                if (m_IsDisposed) 
-                    throw new ObjectDisposedException("An instance is disposed and cannot get subscribers.");
+                ThrowIfDisposed();
                 m_PropertyChanged += value;
             }
             remove
             {
-                if (!m_IsDisposed) m_PropertyChanged -= value;
+                if (m_IsDisposed) return;
+                m_PropertyChanged -= value;
             }
         }
 
@@ -80,13 +84,13 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                if (m_IsDisposed) 
-                    throw new ObjectDisposedException("An instance is disposed and cannot get subscribers.");
+                ThrowIfDisposed();
                 m_CollectionChanged += value;
             }
             remove
             {
-                if (!m_IsDisposed) m_CollectionChanged -= value;
+                if (m_IsDisposed) return;
+                m_CollectionChanged -= value;
             }
         }
 
@@ -120,6 +124,7 @@ namespace Oakbranch.Common.Collections
 
         #region Instance methods
 
+        // List implementation.
         public virtual void Add(T item)
         {
             m_List.Add(item);
@@ -127,7 +132,7 @@ namespace Oakbranch.Common.Collections
             {
                 OnItemAdded(item);
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add, item, m_List.Count - 1));
         }
 
@@ -144,7 +149,7 @@ namespace Oakbranch.Common.Collections
                     if (m_List[i] != null) OnItemAdded(m_List[i]);
                 }
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add, new List<T>(items), startIdx));
         }
 
@@ -160,7 +165,7 @@ namespace Oakbranch.Common.Collections
                     if (item != null) OnItemRemoved(item);
                 }
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Reset));
         }
 
@@ -186,7 +191,7 @@ namespace Oakbranch.Common.Collections
             {
                 OnItemAdded(item);
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add, item, index));
         }
 
@@ -199,7 +204,7 @@ namespace Oakbranch.Common.Collections
             {
                 OnItemRemoved(item);
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Remove, item, index));
             return true;
         }
@@ -212,7 +217,7 @@ namespace Oakbranch.Common.Collections
             {
                 OnItemRemoved(item);
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Remove, item, index));
         }
 
@@ -234,7 +239,7 @@ namespace Oakbranch.Common.Collections
                 }
             }
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Remove, items, index));
         }
 
@@ -243,7 +248,7 @@ namespace Oakbranch.Common.Collections
             if (m_List.Count > 1)
             {
                 m_List.Sort(comparison);
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+                RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Reset));
             }
         }
@@ -253,7 +258,7 @@ namespace Oakbranch.Common.Collections
             if (m_List.Count > 1)
             {
                 m_List.Sort(comparer);
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+                RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Reset));
             }
         }
@@ -273,7 +278,13 @@ namespace Oakbranch.Common.Collections
             return m_List.GetEnumerator();
         }
 
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        // Derived-class customizables.
+        protected virtual void OnItemAdded(T item) { }
+
+        protected virtual void OnItemRemoved(T item) { }
+
+        // Miscellaneous.
+        private void RaiseChangeNotificationEvents(NotifyCollectionChangedEventArgs e)
         {
             if (e.Action != NotifyCollectionChangedAction.Move &&
                 e.Action != NotifyCollectionChangedAction.Replace)
@@ -283,18 +294,45 @@ namespace Oakbranch.Common.Collections
             m_CollectionChanged?.Invoke(this, e);
         }
 
-        protected virtual void OnItemAdded(T item) { }
-
-        protected virtual void OnItemRemoved(T item) { }
+        protected void ThrowIfDisposed()
+        {
+            if (m_IsDisposed)
+                throw new ObjectDisposedException(GetType().Name);
+        }
 
         /// <summary>
         /// Clears event handlers. Keeps the collection of items.
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            m_PropertyChanged = null;
-            m_CollectionChanged = null;
-            m_IsDisposed = true;
+            if (!m_IsDisposed)
+            {
+                m_IsDisposed = true;
+                OnDisposing(true);
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        protected virtual void OnDisposing(bool releaseManaged)
+        {
+            if (releaseManaged)
+            {
+                m_PropertyChanged = null;
+                m_CollectionChanged = null;
+            }
+        }
+
+        #endregion
+
+        #region Destructor
+
+        ~ObservableList()
+        {
+            if (!m_IsDisposed)
+            {
+                m_IsDisposed = true;
+                OnDisposing(false);
+            }
         }
 
         #endregion
