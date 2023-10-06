@@ -33,12 +33,12 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                ThrowIfDisposed();
+                if (m_IsDisposed)
+                    throw new ObjectDisposedException(nameof(ObservableSet<T>));
                 m_CollectionChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
                 m_CollectionChanged -= value;
             }
         }
@@ -48,12 +48,12 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                ThrowIfDisposed();
+                if (m_IsDisposed)
+                    throw new ObjectDisposedException(nameof(ObservableSet<T>));
                 m_PropertyChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
                 m_PropertyChanged -= value;
             }
         }
@@ -86,14 +86,13 @@ namespace Oakbranch.Common.Collections
 
         #region Instance methods
 
-        // Collection implementation.
         public void Add(T item)
         {
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
             if (!m_Items.Add(item))
                 throw new ArgumentException("The collection already contains the specified item.");
-            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add, item));
         }
 
@@ -101,7 +100,7 @@ namespace Oakbranch.Common.Collections
         {
             if (m_Items.Count == 0) return;
             m_Items.Clear();
-            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Reset));
         }
 
@@ -126,7 +125,7 @@ namespace Oakbranch.Common.Collections
         {
             if (m_Items.Remove(item))
             {
-                RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Remove, item));
                 return true;
             }
@@ -146,49 +145,18 @@ namespace Oakbranch.Common.Collections
             return m_Items.GetEnumerator();
         }
 
-        // Miscellaneous.
-        private void RaiseChangeNotificationEvents(NotifyCollectionChangedEventArgs e)
+        private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             m_PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
             m_CollectionChanged?.Invoke(this, e);
         }
 
-        protected void ThrowIfDisposed()
-        {
-            if (m_IsDisposed)
-                throw new ObjectDisposedException(GetType().Name);
-        }
-
         public void Dispose()
         {
-            if (!m_IsDisposed)
-            {
-                m_IsDisposed = true;
-                OnDisposing(true);
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        protected virtual void OnDisposing(bool releaseManaged)
-        {
-            if (releaseManaged)
-            {
-                m_PropertyChanged = null;
-                m_CollectionChanged = null;
-            }
-        }
-
-        #endregion
-
-        #region Destructor
-
-        ~ObservableSet()
-        {
-            if (!m_IsDisposed)
-            {
-                m_IsDisposed = true;
-                OnDisposing(false);
-            }
+            if (m_IsDisposed) return;
+            m_PropertyChanged = null;
+            m_CollectionChanged = null;
+            m_IsDisposed = true;
         }
 
         #endregion
