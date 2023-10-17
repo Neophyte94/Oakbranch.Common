@@ -54,7 +54,7 @@ namespace Oakbranch.Common.Utility
         /// Reads one bit and stores a boolean value represented by it into the out variable.
         /// </summary>
         /// <param name="val">A variable to store a result in.</param>
-        /// <returns><c>True</c> if a boolean value was successfully read, otherwise <c>False</c>.</returns>
+        /// <returns><see langword="true"/> if a boolean value was successfully read, otherwise <see langword="false"/>.</returns>
         public bool ReadBool(out bool val)
         {
             val = false;

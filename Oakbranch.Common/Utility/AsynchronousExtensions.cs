@@ -8,7 +8,7 @@ namespace Oakbranch.Common.Utility
     {
         /// <summary>
         /// DOES NOT work on <see cref="Mutex"/>
-        /// <para>Returns <c>True</c> if the specified handle signals before the timeout interval elapses, otherwise <c>False</c>.</para>
+        /// <para>Returns <see langword="true"/> if the specified handle signals before the timeout interval elapses, otherwise <see langword="false"/>.</para>
         /// <para>The timeout value <c>0</c> makes the task return the state of the handle immediately.</para>
         /// <para>The timeout value <c>-1</c> makes the timeout interval never elapse.</para>
         /// </summary>

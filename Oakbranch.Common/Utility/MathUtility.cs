@@ -50,7 +50,7 @@ namespace Oakbranch.Common.Utility
         /// <summary>
         /// Determines whether two specified nullable decimals are equal.
         /// </summary>
-        /// <returns><c>True</c> if both values are either not null and equal, or if both values are null. Otherwise <c>False</c>.</returns>
+        /// <returns><see langword="true"/> if both values are either not null and equal, or if both values are null. Otherwise <see langword="false"/>.</returns>
         public static bool Equal(in decimal? a, in decimal? b)
         {
             if (a != null)
@@ -73,7 +73,7 @@ namespace Oakbranch.Common.Utility
         /// <summary>
         /// Determines whether <paramref name="a"/> is approximately equal to <paramref name="b"/>, and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if <paramref name="a"/> is approximately equal to <paramref name="b"/>, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="a"/> is approximately equal to <paramref name="b"/>, otherwise <see langword="false"/>.</returns>
         public static bool ApprEqual(in float a, in float b)
         {
             return Math.Abs(a - b) < 0.0000001f;
@@ -83,8 +83,8 @@ namespace Oakbranch.Common.Utility
         /// Determines whether both <paramref name="a"/> and <paramref name="b"/> are null 
         /// or their values an approximately equal, and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if both <paramref name="a"/> and <paramref name="b"/> are null 
-        /// or their values are approximately equal, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if both <paramref name="a"/> and <paramref name="b"/> are null 
+        /// or their values are approximately equal, otherwise <see langword="false"/>.</returns>
         public static bool ApprEqual(in float? a, in float? b)
         {
             if (a != null && b != null) return Math.Abs(a.Value - b.Value) < 0.0000001f;
@@ -94,7 +94,7 @@ namespace Oakbranch.Common.Utility
         /// <summary>
         /// Determines whether <paramref name="a"/> is approximately equal to <paramref name="b"/>, and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if <paramref name="a"/> is approximately equal to <paramref name="b"/>, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="a"/> is approximately equal to <paramref name="b"/>, otherwise <see langword="false"/>.</returns>
         public static bool ApprEqual(in double a, in double b)
         {
             return Math.Abs(a - b) < 0.00000000000001d;
@@ -104,8 +104,8 @@ namespace Oakbranch.Common.Utility
         /// Determines whether both <paramref name="a"/> and <paramref name="b"/> are null 
         /// or their values an approximately equal, and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if both <paramref name="a"/> and <paramref name="b"/> are null 
-        /// or their values are approximately equal, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if both <paramref name="a"/> and <paramref name="b"/> are null 
+        /// or their values are approximately equal, otherwise <see langword="false"/>.</returns>
         public static bool ApprEqual(in double? a, in double? b)
         {
             if (a != null && b != null) return Math.Abs(a.Value - b.Value) < 0.00000000000001d;
@@ -116,8 +116,8 @@ namespace Oakbranch.Common.Utility
         /// Determines whether <paramref name="a"/> is greater than or approximately equal to <paramref name="b"/>, 
         /// and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if <paramref name="a"/> is greater than or approximately equal 
-        /// to <paramref name="b"/>, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="a"/> is greater than or approximately equal 
+        /// to <paramref name="b"/>, otherwise <see langword="false"/>.</returns>
         public static bool ApprGreaterOrEqual(in float a, in float b)
         {
             return b - a < 0.0000001f;
@@ -127,8 +127,8 @@ namespace Oakbranch.Common.Utility
         /// Determines whether <paramref name="a"/> is greater than or approximately equal to <paramref name="b"/>, 
         /// and returns the result.
         /// </summary>
-        /// <returns><c>True</c> if <paramref name="a"/> is greater than or approximately equal 
-        /// to <paramref name="b"/>, otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if <paramref name="a"/> is greater than or approximately equal 
+        /// to <paramref name="b"/>, otherwise <see langword="false"/>.</returns>
         public static bool ApprGreaterOrEqual(in double a, in double b)
         {
             return b - a < 0.00000000000001d;
