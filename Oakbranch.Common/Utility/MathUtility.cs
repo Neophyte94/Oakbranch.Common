@@ -1027,52 +1027,6 @@ namespace Oakbranch.Common.Utility
         }
 
         /// <summary>
-        /// Estimates the upper bound of the confident range for the number of event occurrences
-        /// given the specified single event probability, number of tests and standard deviation multiplier.
-        /// <para>A final number of occurrences will be no greater than a value returned with 
-        /// the probability STANDARD_NORMAL_FUNCTION(<paramref name="sigmaMultiplier"/>).</para>
-        /// </summary>
-        public static int EstimateReliantRangeCeil(
-            in int numberOfTests, in float eventProbability,
-            in float sigmaMultiplier = InvStdNormDistribution0999)
-        {
-            if (eventProbability < 0.0f || eventProbability > 1.0f)
-                throw new ArgumentOutOfRangeException(nameof(eventProbability));
-            if (numberOfTests < 0)
-                throw new ArgumentOutOfRangeException(nameof(numberOfTests));
-            if (sigmaMultiplier < 0.0f)
-                throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
-
-            double statError = sigmaMultiplier * Math.Sqrt(eventProbability * (1.0f - eventProbability) * numberOfTests);
-            return Math.Min(numberOfTests, CeilToInt(numberOfTests * eventProbability + statError));
-        }
-
-        /// <summary>
-        /// Estimates the number of tests needed to get at least as much event occurrences 
-        /// as the specified number with the probability STANDARD_NORMAL_FUNCTION(<paramref name="sigmaMultiplier"/>).
-        /// </summary>
-        /// <param name="occurrencesMin">A targeted minimum of the event occurrences number.</param>
-        /// <param name="eventProbability">A probability of the event.</param>
-        public static int EstimateReliantTestsCount(
-            in int occurrencesMin, in float eventProbability,
-            in float sigmaMultiplier = InvStdNormDistribution0999)
-        {
-            if (eventProbability < 0.0001f || eventProbability > 1.0f)
-                throw new ArgumentOutOfRangeException(nameof(eventProbability));
-            if (sigmaMultiplier < 0.0f)
-                throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
-
-            if (occurrencesMin < 1)
-                return 0;
-
-            double sqrNormQ = sigmaMultiplier * sigmaMultiplier * (1.0 - eventProbability);
-            return CeilToInt(
-                (eventProbability * Math.Sqrt(sqrNormQ * (4.0 * occurrencesMin + sqrNormQ) / (eventProbability * eventProbability)) +
-                 2.0 * occurrencesMin + sqrNormQ)
-                / (2.0 * eventProbability));
-        }
-
-        /// <summary>
         /// Gets a list containing all factors of the specified positive number.
         /// </summary>
         public static List<int> GetFactors(int number)
@@ -1178,6 +1132,210 @@ namespace Oakbranch.Common.Utility
             }
 
             return sum;
+        }
+
+        /// <summary>
+        /// Estimates the upper bound of the confident range for the number of event occurrences
+        /// given the specified single event probability, number of tests and standard deviation multiplier.
+        /// <para>A final number of occurrences will be no greater than a value returned with 
+        /// the probability STANDARD_NORMAL_FUNCTION(<paramref name="sigmaMultiplier"/>).</para>
+        /// </summary>
+        public static int EstimateReliantRangeCeil(
+            in int numberOfTests, in float eventProbability,
+            in float sigmaMultiplier = InvStdNormDistribution0999)
+        {
+            if (eventProbability < 0.0f || eventProbability > 1.0f)
+                throw new ArgumentOutOfRangeException(nameof(eventProbability));
+            if (numberOfTests < 0)
+                throw new ArgumentOutOfRangeException(nameof(numberOfTests));
+            if (sigmaMultiplier < 0.0f)
+                throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
+
+            double statError = sigmaMultiplier * Math.Sqrt(eventProbability * (1.0f - eventProbability) * numberOfTests);
+            return Math.Min(numberOfTests, CeilToInt(numberOfTests * eventProbability + statError));
+        }
+
+        /// <summary>
+        /// Estimates the number of tests needed to get at least as much event occurrences 
+        /// as the specified number with the probability STANDARD_NORMAL_FUNCTION(<paramref name="sigmaMultiplier"/>).
+        /// </summary>
+        /// <param name="occurrencesMin">A targeted minimum of the event occurrences number.</param>
+        /// <param name="eventProbability">A probability of the event.</param>
+        public static int EstimateReliantTestsCount(
+            in int occurrencesMin, in float eventProbability,
+            in float sigmaMultiplier = InvStdNormDistribution0999)
+        {
+            if (eventProbability < 0.0001f || eventProbability > 1.0f)
+                throw new ArgumentOutOfRangeException(nameof(eventProbability));
+            if (sigmaMultiplier < 0.0f)
+                throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
+
+            if (occurrencesMin < 1)
+                return 0;
+
+            double sqrNormQ = sigmaMultiplier * sigmaMultiplier * (1.0 - eventProbability);
+            return CeilToInt(
+                (eventProbability * Math.Sqrt(sqrNormQ * (4.0 * occurrencesMin + sqrNormQ) / (eventProbability * eventProbability)) +
+                 2.0 * occurrencesMin + sqrNormQ)
+                / (2.0 * eventProbability));
+        }
+
+        /// <summary>
+        /// Finds the roots of a quadratic polynomial equation of the form ax^2 + bx + c = 0.
+        /// <para>Sets both result variables to the same value, if only one root exists.</para>
+        /// <para>Sets both result variables to <see cref="double.NaN"/>, if the roots do not exist,
+        /// or the input parameters are not valid numbers.</para>
+        /// </summary>
+        /// <param name="a">The coefficient of the quadratic term.</param>
+        /// <param name="b">The coefficient of the linear term.</param>
+        /// <param name="c">The constant term.</param>
+        /// <param name="x1">
+        /// Output parameter for the first root.
+        /// <para>Set to <see cref="double.NaN"/> if the roots do not exist or cannot be found.</para>
+        /// </param>
+        /// <param name="x2">
+        /// Output parameter for the second root.
+        /// <para>Set to <see cref="double.NaN"/> if the roots do not exist or cannot be found.</para>
+        /// </param>
+        public static void FindPolynomialRoots(
+            double a, double b, double c, out double x1, out double x2)
+        {
+            double discr = b * b - 4.0 * a * c;
+
+            if (double.IsNaN(discr) || discr < 0.0)
+            {
+                x1 = x2 = double.NaN;
+                return;
+            }
+            else if (double.IsPositiveInfinity(discr))
+            {
+                x1 = double.PositiveInfinity;
+                x2 = double.NegativeInfinity;
+                return;
+            }
+
+            a = 0.5 / a;
+            b = -b * a;
+
+            if (discr < 0.0000000000001)
+            {
+                x1 = x2 = b;
+            }
+            else
+            {
+                discr = Math.Sqrt(discr);
+                x1 = b + a * discr;
+                x2 = b - a * discr;
+            }
+        }
+
+        /// <summary>
+        /// Finds the roots of a cubic polynomial equation of the form ax^3 + bx^2 + cx + d = 0.
+        /// <para>Sets one or two result variables to <see cref="double.NaN"/>, if the corresponding roots are complex numbers.</para>
+        /// <para>Sets all the result variables to <see cref="double.NaN"/>, if the input parameters are not valid numbers.</para>
+        /// </summary>
+        /// <param name="a">The coefficient of the cubic term.</param>
+        /// <param name="b">The coefficient of the quadratic term.</param>
+        /// <param name="c">The coefficient of the linear term.</param>
+        /// <param name="d">The constant term.</param>
+        /// <param name="x1">
+        /// Output parameter for the first root.
+        /// <para>Set to <see cref="double.NaN"/> if the roots cannot be found.</para>
+        /// </param>
+        /// <param name="x2">
+        /// Output parameter for the second root.
+        /// <para>Set to <see cref="double.NaN"/> if two roots are complex numbers, or the roots cannot be found.</para>
+        /// </param>
+        /// <param name="x3">
+        /// Output parameter for the third root.
+        /// <para>Set to <see cref="double.NaN"/> if the third root is a complex number, or the roots cannot be found.</para>
+        /// </param>
+        public static void FindPolynomialRoots(
+            double a, double b, double c, double d, out double x1, out double x2, out double x3)
+        {
+            // Find the roots of the cubic equation following the formula of Cardano.
+            // Note that Jerolamo Cardano is NOT the author of this method! He was only the person who published it.
+            // First, the original equation of the form a*x^3 + b*x^2 + c*x + d = 0 is replaced
+            // with the canonic equation of the form y^3 + p*y + q = 0,
+            // where x = y - (b / 3*a).
+
+            // Calculate the parameters 'p' and 'q'.
+            double p = (3.0 * a * c - b * b) / (3.0 * a * a);
+            double q = (2.0 * b * b * b - 9.0 * a * b * c + 27.0 * a * a * d) / (27.0 * a * a * a);
+
+            // Check whether the parameters are valid.
+            if (double.IsNaN(p) || double.IsNaN(q))
+            {
+                x1 = x2 = x3 = double.NaN;
+                return;
+            }
+
+            // Calculate the cubic discriminant 'Q'.
+            double Q = p * p * p / 27.0 + q * q * 0.25;
+
+            double y1, y2, y3;
+            if (Q.ApprZero())
+            {
+                double temp = -0.5 * q;
+#if NET_7_0
+                temp = Math.Cbrt(temp);
+#else
+                temp = Math.Pow(temp, 0.3333333333333);
+#endif
+
+                y1 = 2.0 * temp;
+                y2 = -temp;
+                y3 = double.NaN;
+            }
+            else if (Q < 0.0)
+            {
+                // All the three roots exist.
+                double phi;
+                if (q.ApprZero())
+                {
+                    phi = Math.PI * 0.5;
+                }
+                else
+                {
+                    phi = Math.Atan(Math.Sqrt(-Q) / (-0.5 * q));
+                    if (q > 0.0)
+                    {
+                        phi += Math.PI;
+                    }
+                }
+
+                double temp = 2.0 * Math.Sqrt(-p * 0.3333333333333);
+                y1 = temp * Math.Cos(phi * 0.3333333333333);
+                y2 = temp * Math.Cos((phi + 2.0 * Math.PI) * 0.3333333333333);
+                y3 = temp * Math.Cos((phi + 4.0 * Math.PI) * 0.3333333333333);
+            }
+            else
+            {
+                // Only one REAL root exist. The other two are complex numbers.
+                double rootQ = Math.Sqrt(Q);
+
+                // Calculate the parameters 'alpha' and 'beta'.
+                double alpha = -0.5 * q + rootQ;
+                double beta = -0.5 * q - rootQ;
+
+#if NET_7_0
+                alpha = Math.Cbrt(alpha);
+                beta = Math.Cbrt(beta);
+#else
+                alpha = Math.Pow(alpha, 0.3333333333333);
+                beta = Math.Pow(beta, 0.3333333333333);
+#endif
+
+                y1 = alpha + beta;
+                y2 = double.NaN;
+                y3 = double.NaN;
+            }
+
+            // Calculate the roots of the original equation.
+            double add = -b / (3.0 * a);
+            x1 = y1 + add;
+            x2 = y2 + add;
+            x3 = y3 + add;
         }
     }
 }
