@@ -10,6 +10,9 @@ using System.Threading;
 
 namespace Oakbranch.Common.Utility
 {
+    /// <summary>
+    /// A helper class that provides a set of methods for various common operations.
+    /// </summary>
     public static class CommonUtility
     {
         #region Constants
@@ -635,7 +638,7 @@ namespace Oakbranch.Common.Utility
 #if NET_7_0
             allValues = Enum.GetValues<TEnum>();
 #else
-            allValues = (TEnum[])Enum.GetValues(enumType);
+            allValues = (TEnum[])Enum.GetValues(typeof(TEnum));
 #endif
 
             List<TEnum> result = new List<TEnum>(allValues.Length);
