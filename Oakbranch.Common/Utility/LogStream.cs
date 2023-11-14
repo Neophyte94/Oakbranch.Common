@@ -12,7 +12,7 @@ namespace Oakbranch.Common.Utility
         public LogStream(Stream stream) : base(stream, Encoding.Unicode)
         {
             base.Write("\r\n");
-            base.Write(String.Format("----- {0} {1} -----\r\n",
+            base.Write(string.Format("----- {0} {1} -----\r\n",
                 DateTime.Now.ToShortDateString(),
                 DateTime.Now.ToShortTimeString()));
         }
@@ -34,7 +34,7 @@ namespace Oakbranch.Common.Utility
 
         public override void WriteLine(string format, object arg0)
         {
-            string text = String.Format(format, arg0);
+            string text = string.Format(format, arg0);
 #if DEBUG
             Debug.WriteLine(text);
 #endif
@@ -44,7 +44,7 @@ namespace Oakbranch.Common.Utility
 
         public override void WriteLine(string format, object arg0, object arg1)
         {
-            string text = String.Format(format, arg0, arg1);
+            string text = string.Format(format, arg0, arg1);
 #if DEBUG
             Debug.WriteLine(text);
 #endif
@@ -54,7 +54,7 @@ namespace Oakbranch.Common.Utility
 
         public override void WriteLine(string format, object arg0, object arg1, object arg2)
         {
-            string text = String.Format(format, arg0, arg1, arg2);
+            string text = string.Format(format, arg0, arg1, arg2);
 #if DEBUG
             Debug.WriteLine(text);
 #endif
@@ -64,7 +64,7 @@ namespace Oakbranch.Common.Utility
 
         public override void WriteLine(string format, params object[] args)
         {
-            string text = String.Format(format, args);
+            string text = string.Format(format, args);
 #if DEBUG
             Debug.WriteLine(text);
 #endif

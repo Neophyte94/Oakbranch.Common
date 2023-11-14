@@ -9,7 +9,10 @@ namespace Oakbranch.Common.Utility
         {
             void EnsureClean(byte[] array)
             {
-                if (array != null) Array.Clear(array, 0, array.Length);
+                if (array != null)
+                {
+                    Array.Clear(array, 0, array.Length);
+                }
             }
 
             EnsureClean(parameters.D);
@@ -39,9 +42,12 @@ namespace Oakbranch.Common.Utility
 
         public static RSAParameters Clone(this RSAParameters source)
         {
-            RSAParameters target = new RSAParameters();
-            target.Modulus = source.Modulus.CreateCopy();
-            target.Exponent = source.Exponent.CreateCopy();
+            RSAParameters target = new RSAParameters
+            {
+                Modulus = source.Modulus.CreateCopy(),
+                Exponent = source.Exponent.CreateCopy()
+            };
+
             if (source.P != null)
             {
                 target.P = source.P.CreateCopy();
@@ -51,6 +57,7 @@ namespace Oakbranch.Common.Utility
                 target.DQ = source.DQ.CreateCopy();
                 target.InverseQ = source.InverseQ.CreateCopy();
             }
+
             return target;
         }
     }

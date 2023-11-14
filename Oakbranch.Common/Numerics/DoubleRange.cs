@@ -88,9 +88,13 @@ namespace Oakbranch.Common.Numerics
         public DoubleRange(double floor, double ceil)
         {
             if (double.IsNaN(floor))
+            {
                 throw new ArgumentException("A floor value must be a number.");
+            }
             if (double.IsNaN(ceil))
+            {
                 throw new ArgumentException("A ceil value must be a number.");
+            }
             if (ceil < floor)
             {
                 throw new ArgumentException(

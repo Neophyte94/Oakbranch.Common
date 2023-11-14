@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -33,8 +34,8 @@ namespace Oakbranch.Common.Utility
                 ss_bstr1_ptr = Marshal.SecureStringToBSTR(a);
                 ss_bstr2_ptr = Marshal.SecureStringToBSTR(b);
 
-                String str1 = Marshal.PtrToStringBSTR(ss_bstr1_ptr);
-                String str2 = Marshal.PtrToStringBSTR(ss_bstr2_ptr);
+                string str1 = Marshal.PtrToStringBSTR(ss_bstr1_ptr);
+                string str2 = Marshal.PtrToStringBSTR(ss_bstr2_ptr);
 
                 return str1.Equals(str2);
             }
@@ -70,6 +71,7 @@ namespace Oakbranch.Common.Utility
         }
 
         // Gets the hash of the specified secure string.
+        [SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "Clearing reference in memory")]
         public static byte[] GetBytes(this SecureString value)
         {
             // Convert the input password into the byte array.

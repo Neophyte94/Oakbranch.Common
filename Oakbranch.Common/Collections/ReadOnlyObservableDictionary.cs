@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Oakbranch.Common.Collections
 {
@@ -17,57 +18,57 @@ namespace Oakbranch.Common.Collections
     {
         #region Instance members
 
-        private readonly ReadOnlyDictionary<TKey, TValue> m_Dictionary;
+        private readonly ReadOnlyDictionary<TKey, TValue> _dictionary;
 
-        public IEnumerable<TKey> Keys => m_Dictionary.Keys;
+        public IEnumerable<TKey> Keys => _dictionary.Keys;
 
-        public IEnumerable<TValue> Values => m_Dictionary.Values;
+        public IEnumerable<TValue> Values => _dictionary.Values;
 
-        public int Count => m_Dictionary.Count;
+        public int Count => _dictionary.Count;
 
-        private bool m_IsDisposed;
+        private bool _isDisposed;
 
         #endregion
 
         #region Instance indexers
 
-        public TValue this[TKey key] => m_Dictionary[key];
+        public TValue this[TKey key] => _dictionary[key];
 
         #endregion
 
         #region Instance events
 
-#pragma warning disable IDE0052
-        // The event is only formal and never actually raised.
-        private PropertyChangedEventHandler m_PropertyChanged;
+        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
+        private PropertyChangedEventHandler _propertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
-                if (!m_IsDisposed)
-                    m_PropertyChanged += value;
+                ThrowIfDisposed();
+                _propertyChanged += value;
             }
             remove
             {
-                m_PropertyChanged -= value;
+                if (_isDisposed) return;
+                _propertyChanged -= value;
             }
         }
 
-        // The event is only formal and never actually raised.
-        private NotifyCollectionChangedEventHandler m_CollectionChanged;
+        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
+        private NotifyCollectionChangedEventHandler _collectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
-                if (!m_IsDisposed)
-                    m_CollectionChanged += value;
+                ThrowIfDisposed();
+                _collectionChanged += value;
             }
             remove
             {
-                m_CollectionChanged -= value;
+                if (_isDisposed) return;
+                _collectionChanged -= value;
             }
         }
-#pragma warning restore IDE0052
 
         #endregion
 
@@ -91,7 +92,7 @@ namespace Oakbranch.Common.Collections
                 temp.Add(selector(val), val);
             }
 
-            m_Dictionary = new ReadOnlyDictionary<TKey, TValue>(temp);
+            _dictionary = new ReadOnlyDictionary<TKey, TValue>(temp);
         }
 
         public ReadOnlyObservableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> pairs)
@@ -110,7 +111,7 @@ namespace Oakbranch.Common.Collections
                 temp.Add(pair.Key, pair.Value);
             }
 
-            m_Dictionary = new ReadOnlyDictionary<TKey, TValue>(temp);
+            _dictionary = new ReadOnlyDictionary<TKey, TValue>(temp);
         }
 
         public ReadOnlyObservableDictionary(IDictionary<TKey, TValue> source)
@@ -118,29 +119,55 @@ namespace Oakbranch.Common.Collections
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            m_Dictionary = new ReadOnlyDictionary<TKey, TValue>(source);
+            _dictionary = new ReadOnlyDictionary<TKey, TValue>(source);
         }
 
         #endregion
 
         #region Instance methods
 
-        public bool ContainsKey(TKey key) => m_Dictionary.ContainsKey(key);
+        public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
 
-        public bool TryGetValue(TKey key, out TValue value) => m_Dictionary.TryGetValue(key, out value);
+        public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value);
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => m_Dictionary.GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionary.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => m_Dictionary.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
 
         public void Dispose()
         {
-            if (!m_IsDisposed)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool releaseManaged)
+        {
+            if (_isDisposed) return;
+
+            if (releaseManaged)
             {
-                m_PropertyChanged = null;
-                m_CollectionChanged = null;
-                m_IsDisposed = true;
+                _propertyChanged = null;
+                _collectionChanged = null;
             }
+
+            _isDisposed = true;
+        }
+
+        #endregion
+
+        #region Destructor
+
+        ~ReadOnlyObservableDictionary()
+        {
+            Dispose(false);
         }
 
         #endregion

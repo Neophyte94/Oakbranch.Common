@@ -3,8 +3,5 @@
 namespace Oakbranch.Common.Data
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class AutoIncrementAttribute : Attribute
-    {
-
-    }
+    public class AutoIncrementAttribute : Attribute { }
 }

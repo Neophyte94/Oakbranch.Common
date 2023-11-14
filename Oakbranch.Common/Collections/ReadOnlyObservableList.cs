@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Oakbranch.Common.Collections
 {
@@ -21,15 +22,16 @@ namespace Oakbranch.Common.Collections
 
         #region Instance events
 
-#pragma warning disable IDE0052
-        // The event is only formal and never actually raised.
+        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
         private NotifyCollectionChangedEventHandler m_CollectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
                 if (!m_IsDisposed)
+                {
                     m_CollectionChanged += value;
+                }
             }
             remove
             {
@@ -37,21 +39,22 @@ namespace Oakbranch.Common.Collections
             }
         }
 
-        // The event is only formal and never actually raised.
+        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
         private PropertyChangedEventHandler m_PropertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
                 if (!m_IsDisposed)
+                {
                     m_PropertyChanged += value;
+                }
             }
             remove
             {
                 m_PropertyChanged -= value;
             }
         }
-#pragma warning restore IDE0052
 
         #endregion
 

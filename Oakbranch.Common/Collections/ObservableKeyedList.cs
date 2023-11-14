@@ -22,17 +22,17 @@ namespace Oakbranch.Common.Collections
 
         #region Instance members
 
-        private List<TValue> m_List;
-        private Dictionary<TKey, TValue> m_Dictionary;
+        private List<TValue> _list;
+        private Dictionary<TKey, TValue> _dictionary;
 
-        public int Count => m_List.Count;
+        public int Count => _list.Count;
 
         public bool IsReadOnly => false;
 
         protected virtual bool IsChangesAware => false;
 
-        private bool m_IsDisposed;
-        protected bool IsDisposed => m_IsDisposed;
+        private bool _isDisposed;
+        protected bool IsDisposed => _isDisposed;
 
         #endregion
 
@@ -42,36 +42,36 @@ namespace Oakbranch.Common.Collections
         {
             get
             {
-                return m_List[index];
+                return _list[index];
             }
             set
             {
-                if (index < 0 || index >= m_List.Count)
-                    throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, m_List.Count - 1);
+                if (index < 0 || index >= _list.Count)
+                    throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
 
                 ValidateNewItem(value);
-                TValue itemToRemove = m_List[index];
+                TValue itemToRemove = _list[index];
                 TKey newKey = GetKey(value);
                 TKey oldKey = GetKey(itemToRemove);
                 if (ReferenceEquals(itemToRemove, value)) return;
 
                 if (CheckDictionaryState())
                 {
-                    m_Dictionary.Remove(oldKey);
-                    m_Dictionary.Add(newKey, value);
+                    _dictionary.Remove(oldKey);
+                    _dictionary.Add(newKey, value);
                 }
                 else
                 {
-                    int count = m_List.Count;
+                    int count = _list.Count;
                     for (int i = 0; i != count;)
                     {
-                        TKey existingKey = GetKey(m_List[i++]);
+                        TKey existingKey = GetKey(_list[i++]);
                         if (existingKey.Equals(newKey) && !existingKey.Equals(oldKey))
                             throw GenerateItemAlreadyExistsException();
                     }
                 }
 
-                m_List[index] = value;
+                _list[index] = value;
 
                 if (IsChangesAware)
                 {
@@ -100,33 +100,33 @@ namespace Oakbranch.Common.Collections
 
         #region Instance events
 
-        private PropertyChangedEventHandler m_PropertyChanged;
+        private PropertyChangedEventHandler _propertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
                 ThrowIfDisposed();
-                m_PropertyChanged += value;
+                _propertyChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
-                m_PropertyChanged -= value;
+                if (_isDisposed) return;
+                _propertyChanged -= value;
             }
         }
 
-        private NotifyCollectionChangedEventHandler m_CollectionChanged;
+        private NotifyCollectionChangedEventHandler _collectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
                 ThrowIfDisposed();
-                m_CollectionChanged += value;
+                _collectionChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
-                m_CollectionChanged -= value;
+                if (_isDisposed) return;
+                _collectionChanged -= value;
             }
         }
 
@@ -136,36 +136,36 @@ namespace Oakbranch.Common.Collections
 
         public ObservableKeyedList()
         {
-            m_List = new List<TValue>();
+            _list = new List<TValue>();
         }
 
         public ObservableKeyedList(int capacity)
         {
-            m_List = new List<TValue>(capacity);
+            _list = new List<TValue>(capacity);
         }
 
         public ObservableKeyedList(IEnumerable<TValue> collection)
         {
-            m_List = new List<TValue>(collection);
+            _list = new List<TValue>(collection);
             if (!CheckDictionaryState())
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
-                    TValue item = m_List[i];
+                    TValue item = _list[i];
                     ValidateNewItem(item);
                     TKey key = GetKey(item);
                     for (int j = 0; j != count; ++j)
                     {
                         if (i == j) continue;
-                        if (GetKey(m_List[j]).Equals(key))
+                        if (GetKey(_list[j]).Equals(key))
                             throw new ArgumentException("The specified collection contains duplicate items.");
                     }
                 }
             }
             if (IsChangesAware)
             {
-                foreach (TValue item in m_List)
+                foreach (TValue item in _list)
                 {
                     OnItemAdded(item);
                 }
@@ -198,11 +198,11 @@ namespace Oakbranch.Common.Collections
         {
             if (CheckDictionaryState())
             {
-                return m_Dictionary.ContainsKey(key);
+                return _dictionary.ContainsKey(key);
             }
             else
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
                     if (GetKey(this[i]).Equals(key)) return true;
@@ -223,9 +223,9 @@ namespace Oakbranch.Common.Collections
 
         public int IndexOf(TKey key)
         {
-            if (!CheckDictionaryState() || m_Dictionary.ContainsKey(key))
+            if (!CheckDictionaryState() || _dictionary.ContainsKey(key))
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
                     if (GetKey(this[i]).Equals(key)) return i;
@@ -244,9 +244,9 @@ namespace Oakbranch.Common.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            if (!m_IsDisposed && m_Dictionary == null)
+            if (!_isDisposed && _dictionary == null)
             {
-                int capacity = m_List.Count;
+                int capacity = _list.Count;
                 if (items is ICollection<TValue> c)
                     capacity += c.Count;
                 else if (items is TValue[] a)
@@ -257,13 +257,13 @@ namespace Oakbranch.Common.Collections
                 if (capacity >= DictionaryThreshold) CreateDictionary(capacity);
             }
 
-            int startIdx = m_List.Count;
+            int startIdx = _list.Count;
             if (CheckDictionaryState())
             {
                 foreach (TValue item in items)
                 {
                     TKey key = GetKey(item);
-                    m_Dictionary.Add(key, item);
+                    _dictionary.Add(key, item);
                 }
             }
             else
@@ -271,23 +271,23 @@ namespace Oakbranch.Common.Collections
                 foreach (TValue item in items)
                 {
                     TKey key = GetKey(item);
-                    int count = m_List.Count;
+                    int count = _list.Count;
                     for (int i = 0; i != count;)
                     {
-                        if (GetKey(m_List[i++]).Equals(key))
+                        if (GetKey(_list[i++]).Equals(key))
                             throw GenerateItemAlreadyExistsException();
                     }
                 }
             }
 
-            m_List.AddRange(items);
+            _list.AddRange(items);
 
             if (IsChangesAware)
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = startIdx; i != count;)
                 {
-                    OnItemAdded(m_List[i++]);
+                    OnItemAdded(_list[i++]);
                 }
             }
 
@@ -298,11 +298,11 @@ namespace Oakbranch.Common.Collections
 
         public void Clear()
         {
-            if (m_List.Count == 0) return;
+            if (_list.Count == 0) return;
 
-            List<TValue> oldList = m_List;
-            m_List = new List<TValue>(oldList.Capacity);
-            m_Dictionary = new Dictionary<TKey, TValue>(oldList.Capacity);
+            List<TValue> oldList = _list;
+            _list = new List<TValue>(oldList.Capacity);
+            _dictionary = new Dictionary<TKey, TValue>(oldList.Capacity);
 
             if (IsChangesAware)
             {
@@ -319,13 +319,13 @@ namespace Oakbranch.Common.Collections
 
         public void CopyTo(TValue[] array, int arrayIndex)
         {
-            m_List.CopyTo(array, arrayIndex);
+            _list.CopyTo(array, arrayIndex);
         }
 
         public void Insert(int index, TValue item)
         {
-            if (index < 0 || index > m_List.Count)
-                throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, m_List.Count);
+            if (index < 0 || index > _list.Count)
+                throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count);
         }
 
         private void InsertInternal(TValue item, int index)
@@ -337,14 +337,14 @@ namespace Oakbranch.Common.Collections
             // Update the internal dictionary.
             if (CheckDictionaryState())
             {
-                m_Dictionary.Add(key, item);
+                _dictionary.Add(key, item);
             }
             else
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = 0; i != count;)
                 {
-                    if (GetKey(m_List[i++]).Equals(key))
+                    if (GetKey(_list[i++]).Equals(key))
                         throw GenerateItemAlreadyExistsException();
                 }
             }
@@ -352,12 +352,12 @@ namespace Oakbranch.Common.Collections
             // Insert the item into the list.
             if (index == -1)
             {
-                m_List.Add(item);
-                index = m_List.Count - 1;
+                _list.Add(item);
+                index = _list.Count - 1;
             }
             else
             {
-                m_List.Insert(index, item);
+                _list.Insert(index, item);
             }
 
             // Raise the protected-scope notification.
@@ -374,13 +374,13 @@ namespace Oakbranch.Common.Collections
 
         public bool Remove(TValue item)
         {
-            int index = m_List.IndexOf(item);
+            int index = _list.IndexOf(item);
             if (index == -1) return false;
 
-            m_List.RemoveAt(index);
-            if (m_Dictionary != null && !m_IsDisposed)
+            _list.RemoveAt(index);
+            if (_dictionary != null && !_isDisposed)
             {
-                m_Dictionary.Remove(GetKey(item));
+                _dictionary.Remove(GetKey(item));
             }
 
             if (IsChangesAware)
@@ -396,11 +396,11 @@ namespace Oakbranch.Common.Collections
 
         public void RemoveAt(int index)
         {
-            TValue item = m_List[index];
-            m_List.RemoveAt(index);
-            if (m_Dictionary != null && !m_IsDisposed)
+            TValue item = _list[index];
+            _list.RemoveAt(index);
+            if (_dictionary != null && !_isDisposed)
             {
-                m_Dictionary.Remove(GetKey(item));
+                _dictionary.Remove(GetKey(item));
             }
 
             if (IsChangesAware)
@@ -417,11 +417,11 @@ namespace Oakbranch.Common.Collections
         {
             if (CheckDictionaryState())
             {
-                return m_Dictionary.TryGetValue(key, out value);
+                return _dictionary.TryGetValue(key, out value);
             }
             else
             {
-                int count = m_List.Count;
+                int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
                     value = this[i];
@@ -434,7 +434,7 @@ namespace Oakbranch.Common.Collections
 
         public void Sort(Comparison<TValue> comparison)
         {
-            m_List.Sort(comparison);
+            _list.Sort(comparison);
             RaiseChangeNotificationEvents(
                 new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Reset));
@@ -442,29 +442,29 @@ namespace Oakbranch.Common.Collections
 
         public void TrimExcess()
         {
-            if (m_List.Count < m_List.Capacity)
+            if (_list.Count < _list.Capacity)
             {
-                m_List.TrimExcess();
+                _list.TrimExcess();
             }
         }
 
         public IEnumerator<TValue> GetEnumerator()
         {
-            return m_List.GetEnumerator();
+            return _list.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return m_List.GetEnumerator();
+            return _list.GetEnumerator();
         }
 
         // Internal dictionary management.
         private bool CheckDictionaryState()
         {
-            if (m_Dictionary == null)
+            if (_dictionary == null)
             {
-                if (m_IsDisposed || m_List.Count < DictionaryThreshold) return false;
-                CreateDictionary(m_List.Count << 1);
+                if (_isDisposed || _list.Count < DictionaryThreshold) return false;
+                CreateDictionary(_list.Count << 1);
                 return true;
             }
             else
@@ -475,12 +475,12 @@ namespace Oakbranch.Common.Collections
 
         private void CreateDictionary(int capacity)
         {
-            m_Dictionary = new Dictionary<TKey, TValue>(capacity);
-            int count = m_List.Count;
+            _dictionary = new Dictionary<TKey, TValue>(capacity);
+            int count = _list.Count;
             for (int i = 0; i != count; ++i)
             {
-                TValue item = m_List[i];
-                m_Dictionary.Add(GetKey(item), item);
+                TValue item = _list[i];
+                _dictionary.Add(GetKey(item), item);
             }
         }
 
@@ -499,14 +499,14 @@ namespace Oakbranch.Common.Collections
             if (e.Action != NotifyCollectionChangedAction.Move &&
                 e.Action != NotifyCollectionChangedAction.Replace)
             {
-                m_PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
             }
-            m_CollectionChanged?.Invoke(this, e);
+            _collectionChanged?.Invoke(this, e);
         }
 
         protected void ThrowIfDisposed()
         {
-            if (m_IsDisposed)
+            if (_isDisposed)
                 throw new ObjectDisposedException(GetType().Name);
         }
 
@@ -515,22 +515,26 @@ namespace Oakbranch.Common.Collections
         /// </summary>
         public virtual void Dispose()
         {
-            if (!m_IsDisposed)
-            {
-                m_IsDisposed = true;
-                OnDisposing(true);
-                GC.SuppressFinalize(this);
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        protected virtual void OnDisposing(bool releaseManaged)
+        private void Dispose(bool releaseManaged)
         {
+            if (_isDisposed) return;
+
             if (releaseManaged)
             {
-                m_PropertyChanged = null;
-                m_CollectionChanged = null;
+                _propertyChanged = null;
+                _collectionChanged = null;
             }
+
+            OnDisposing(releaseManaged);
+
+            _isDisposed = true;
         }
+
+        protected virtual void OnDisposing(bool releaseManaged) { }
 
         #endregion
 
@@ -538,11 +542,7 @@ namespace Oakbranch.Common.Collections
 
         ~ObservableKeyedList()
         {
-            if (!m_IsDisposed)
-            {
-                m_IsDisposed = true;
-                OnDisposing(false);
-            }
+            Dispose(false);
         }
 
         #endregion

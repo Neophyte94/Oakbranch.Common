@@ -13,15 +13,15 @@ namespace Oakbranch.Common.Collections
     {
         #region Instance members
 
-        private T[] m_Items;
+        private T[] _items;
 
-        private int m_Count;
-        public int Count => m_Count;
+        private int _count;
+        public int Count => _count;
 
-        private bool m_IsReadOnly;
-        public bool IsReadOnly => m_IsReadOnly;
+        private bool _isReadOnly;
+        public bool IsReadOnly => _isReadOnly;
 
-        private int m_Version = int.MinValue;
+        private int _version = int.MinValue;
 
         #endregion
 
@@ -31,11 +31,11 @@ namespace Oakbranch.Common.Collections
         {
             get
             {
-                return m_Items[index];
+                return _items[index];
             }
             set
             {
-                ThrowExceptionIfFrozen();
+                ThrowIfFrozen();
                 Insert(index, value);
             }
         }
@@ -46,12 +46,12 @@ namespace Oakbranch.Common.Collections
 
         public FreezableList()
         {
-            m_Items = new T[4];
+            _items = new T[4];
         }
 
         public FreezableList(int capacity)
         {
-            m_Items = new T[Math.Max(capacity, 1)];
+            _items = new T[Math.Max(capacity, 1)];
         }
 
         public FreezableList(T[] items)
@@ -59,11 +59,11 @@ namespace Oakbranch.Common.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            m_Count = items.Length;
-            m_Items = new T[Math.Max(m_Count, 1)];
-            for (int i = 0; i != m_Count; ++i)
+            _count = items.Length;
+            _items = new T[Math.Max(_count, 1)];
+            for (int i = 0; i != _count; ++i)
             {
-                m_Items[i] = items[i];
+                _items[i] = items[i];
             }
         }
 
@@ -72,10 +72,10 @@ namespace Oakbranch.Common.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            m_Items = new T[Math.Max(items.Count, 1)];
+            _items = new T[Math.Max(items.Count, 1)];
             foreach (T item in items)
             {
-                m_Items[m_Count++] = item;
+                _items[_count++] = item;
             }
         }
 
@@ -84,10 +84,10 @@ namespace Oakbranch.Common.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            m_Items = items.ToArray();
-            m_Count = m_Items.Length;
-            if (m_Count == 0)
-                m_Items = new T[1];
+            _items = items.ToArray();
+            _count = _items.Length;
+            if (_count == 0)
+                _items = new T[1];
         }
 
         #endregion
@@ -102,10 +102,10 @@ namespace Oakbranch.Common.Collections
         /// <exception cref="InvalidOperationException"/>
         public void Add(T item)
         {
-            ThrowExceptionIfFrozen();
-            EnsureCapacity(m_Count + 1);
-            m_Items[m_Count++] = item;
-            ++m_Version;
+            ThrowIfFrozen();
+            EnsureCapacity(_count + 1);
+            _items[_count++] = item;
+            ++_version;
         }
 
         /// <summary>
@@ -115,27 +115,27 @@ namespace Oakbranch.Common.Collections
         /// <exception cref="InvalidOperationException"/>
         public void Clear()
         {
-            ThrowExceptionIfFrozen();
-            Array.Clear(m_Items, 0, m_Count);
-            m_Count = 0;
-            ++m_Version;
+            ThrowIfFrozen();
+            Array.Clear(_items, 0, _count);
+            _count = 0;
+            ++_version;
         }
 
         public bool Contains(T item)
         {
             if (item == null) 
             {
-                for (int i = 0; i < m_Count;)
+                for (int i = 0; i < _count;)
                 {
-                    if (m_Items[i++] == null) return true;
+                    if (_items[i++] == null) return true;
                 }
                 return false;
             }
             else
             {
-                for (int i = 0; i < m_Count;)
+                for (int i = 0; i < _count;)
                 {
-                    if (item.Equals(m_Items[i++])) return true;
+                    if (item.Equals(_items[i++])) return true;
                 }
                 return false;
             }
@@ -146,14 +146,14 @@ namespace Oakbranch.Common.Collections
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
 
-            int count = m_Count;
+            int count = _count;
             if (array.Length - arrayIndex < count)
                 throw new ArgumentException($"The specified array is not large enough ({array.Length}) " +
                     $"to contain {count} items from the index {arrayIndex}.");
 
             for (int i = 0, j = arrayIndex; i != count;)
             {
-                array[j++] = m_Items[i++];
+                array[j++] = _items[i++];
             }
         }
 
@@ -161,17 +161,17 @@ namespace Oakbranch.Common.Collections
         {
             if (item == null)
             {
-                for (int i = 0; i < m_Count; ++i)
+                for (int i = 0; i < _count; ++i)
                 {
-                    if (m_Items[i] == null) return i;
+                    if (_items[i] == null) return i;
                 }
                 return -1;
             }
             else
             {
-                for (int i = 0; i < m_Count; ++i)
+                for (int i = 0; i < _count; ++i)
                 {
-                    if (item.Equals(m_Items[i])) return i;
+                    if (item.Equals(_items[i])) return i;
                 }
                 return -1;
             }
@@ -187,22 +187,22 @@ namespace Oakbranch.Common.Collections
         /// <exception cref="InvalidOperationException"/>
         public void Insert(int index, T item)
         {
-            if (index == m_Count)
+            if (index == _count)
             {
                 Add(item);
                 return;
             }
-            else if (index > m_Count || index < 0)
+            else if (index > _count || index < 0)
             {
                 throw new IndexOutOfRangeException();
             }
 
-            ThrowExceptionIfFrozen();
-            if (index < 0 || index > m_Count)
+            ThrowIfFrozen();
+            if (index < 0 || index > _count)
                 throw new IndexOutOfRangeException();
 
-            m_Items[index] = item;            
-            ++m_Version;
+            _items[index] = item;            
+            ++_version;
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Oakbranch.Common.Collections
         /// <exception cref="InvalidOperationException"/>
         public bool Remove(T item)
         {
-            ThrowExceptionIfFrozen();
+            ThrowIfFrozen();
 
             int idx = IndexOf(item);
             if (idx == -1) return false;
@@ -232,26 +232,26 @@ namespace Oakbranch.Common.Collections
         /// <exception cref="InvalidOperationException"/>
         public void RemoveAt(int index)
         {
-            ThrowExceptionIfFrozen();
-            if (index < 0 || index >= m_Count)
+            ThrowIfFrozen();
+            if (index < 0 || index >= _count)
                 throw new IndexOutOfRangeException();
 
-            for (int i = index + 1; i < m_Count; ++i)
+            for (int i = index + 1; i < _count; ++i)
             {
-                m_Items[index - 1] = m_Items[index];
+                _items[index - 1] = _items[index];
             }
-            m_Items[index] = default;
-            --m_Count;
-            ++m_Version;
+            _items[index] = default;
+            --_count;
+            ++_version;
         }
 
         private void EnsureCapacity(int neededCapacity)
         {
-            if (m_Items.Length < neededCapacity)
+            if (_items.Length < neededCapacity)
             {
-                T[] buffer = new T[m_Items.Length << 1];
-                m_Items.CopyTo(buffer, 0);
-                m_Items = buffer;
+                T[] buffer = new T[_items.Length << 1];
+                _items.CopyTo(buffer, 0);
+                _items = buffer;
             }
         }
 
@@ -261,27 +261,32 @@ namespace Oakbranch.Common.Collections
         /// </summary>
         public void Freeze()
         {
-            m_IsReadOnly = true;
+            _isReadOnly = true;
         }
 
-        private void ThrowExceptionIfFrozen()
+        private void ThrowIfFrozen()
         {
-            if (m_IsReadOnly)
+            if (_isReadOnly)
+            {
                 throw new InvalidOperationException("This list cannot be modified any more since it has been frozen.");
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            int version = m_Version;
-            for (int i = 0; i != m_Count;)
+            int version = _version;
+            for (int i = 0; i != _count;)
             {
-                if (version != m_Version)
-                    throw new Exception("A collection was modified during enumeration.");
-                yield return m_Items[i++];
+                if (version != _version)
+                {
+                    throw new Exception("The collection was modified during enumeration.");
+                }
+
+                yield return _items[i++];
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<T>).GetEnumerator();
 
         #endregion
     }

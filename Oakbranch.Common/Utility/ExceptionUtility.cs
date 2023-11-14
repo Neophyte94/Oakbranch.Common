@@ -9,8 +9,7 @@ namespace Oakbranch.Common.Utility
         #region Static members
 
         private static readonly MethodInfo ExceptionPreserveStackMethod;
-            
-
+        
         #endregion
 
         #region Static constructor

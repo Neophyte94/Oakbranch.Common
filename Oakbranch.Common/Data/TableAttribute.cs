@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Oakbranch.Common.Data
 {
@@ -11,7 +9,11 @@ namespace Oakbranch.Common.Data
 
         public TableAttribute(string name)
         {
-            if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
             Name = name;
         }
     }

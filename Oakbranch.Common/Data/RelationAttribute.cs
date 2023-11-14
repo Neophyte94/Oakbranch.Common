@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Oakbranch.Common.Data
 {
@@ -14,8 +12,15 @@ namespace Oakbranch.Common.Data
 
         public RelationAttribute(string ThisKey, string OtherKey, Type OtherType, string LazyLoader = null)
         {
-            if (String.IsNullOrWhiteSpace(ThisKey)) throw new ArgumentNullException(nameof(ThisKey));
-            if (String.IsNullOrWhiteSpace(OtherKey)) throw new ArgumentNullException(nameof(OtherKey));
+            if (string.IsNullOrWhiteSpace(ThisKey))
+            {
+                throw new ArgumentNullException(nameof(ThisKey));
+            }
+            if (string.IsNullOrWhiteSpace(OtherKey))
+            {
+                throw new ArgumentNullException(nameof(OtherKey));
+            }
+
             this.ThisKey = ThisKey;
             this.OtherKey = OtherKey;
             this.OtherType = OtherType ?? throw new ArgumentNullException(nameof(OtherType));

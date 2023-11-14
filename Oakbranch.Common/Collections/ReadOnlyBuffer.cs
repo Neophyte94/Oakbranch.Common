@@ -13,12 +13,12 @@ namespace Oakbranch.Common.Collections
     {
         #region Instance members
 
-        private readonly T[] m_Buffer;
-        private readonly int m_FromIdx;
-        private readonly int m_ToIdx;
+        private readonly T[] _buffer;
+        private readonly int _fromIdx;
+        private readonly int _toIdx;
 
-        private readonly int m_Count;
-        public int Count => m_Count;
+        private readonly int _count;
+        public int Count => _count;
 
         #endregion
 
@@ -28,11 +28,15 @@ namespace Oakbranch.Common.Collections
         {
             get
             {
-                if (index > -1 && index < m_Count)
-                    return m_Buffer[m_FromIdx + index];
+                if (index > -1 && index < _count)
+                {
+                    return _buffer[_fromIdx + index];
+                }
                 else
+                {
                     throw new IndexOutOfRangeException(
-                        $"The specified index {index} is out of the acceptable range [0 ; {m_ToIdx - 1}].");
+                        $"The specified index {index} is out of the acceptable range [0 ; {_toIdx - 1}].");
+                }
             }
         }
 
@@ -43,19 +47,27 @@ namespace Oakbranch.Common.Collections
         public ReadOnlyBuffer(T[] source, int fromIdx, int toIdx)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
             if (fromIdx < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(fromIdx));
+            }
             if (toIdx > source.Length)
+            {
                 throw new ArgumentOutOfRangeException(nameof(toIdx));
+            }
 
-            m_Buffer = source;
-            m_FromIdx = fromIdx;
-            m_ToIdx = toIdx;
+            _buffer = source;
+            _fromIdx = fromIdx;
+            _toIdx = toIdx;
 
-            m_Count = toIdx - fromIdx;
-            if (m_Count < 0)
+            _count = toIdx - fromIdx;
+            if (_count < 0)
+            {
                 throw new ArgumentException($"The specified indices range [{fromIdx} ; {toIdx}) is invalid.");
+            }
         }
 
         #endregion
@@ -64,9 +76,9 @@ namespace Oakbranch.Common.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i = m_FromIdx; i != m_ToIdx; ++i)
+            for (int i = _fromIdx; i != _toIdx; ++i)
             {
-                yield return m_Buffer[i];
+                yield return _buffer[i];
             }
         }
 

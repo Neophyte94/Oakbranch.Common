@@ -19,10 +19,10 @@ namespace Oakbranch.Common.Collections
 
         #region Instance members
 
-        private readonly T[] m_Items;
+        private readonly T[] _items;
 
-        private readonly int m_Count;
-        public int Count => m_Count;
+        private readonly int _count;
+        public int Count => _count;
 
         #endregion
 
@@ -32,9 +32,12 @@ namespace Oakbranch.Common.Collections
         {
             get
             {
-                if (index < 0 || index >= m_Count)
+                if (index < 0 || index >= _count)
+                {
                     throw new IndexOutOfRangeException();
-                return m_Items[index];
+                }
+
+                return _items[index];
             }
         }
 
@@ -44,49 +47,64 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlyHashList()
         {
-            m_Items = null;
-            m_Count = 0;
+            _items = null;
+            _count = 0;
         }
 
         public ReadOnlyHashList(T item)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
-            m_Items = new T[1] { item };
-            m_Count = 1;
+            if (item == null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+
+            _items = new T[1] { item };
+            _count = 1;
         }
 
         public ReadOnlyHashList(T[] items)
         {
             int count = items.Length;
-            m_Items = new T[count];
+            _items = new T[count];
             T item;
             HashSet<T> hashSet = null;
+
             for (int i = 0; i != count;)
             {
                 item = items[i++];
                 if (item == null)
-                    throw new ArgumentException("Null references are not allowed.");
+                {
+                    throw new ArgumentException("Null elements are not allowed.");
+                }
 
                 if (!Contains(ref hashSet, item))
                 {
-                    m_Items[m_Count++] = item;
+                    _items[_count++] = item;
                 }
             }
         }
 
         public ReadOnlyHashList(IEnumerable<T> items)
         {
-            m_Items = new T[4];
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            _items = new T[4];
             HashSet<T> hashSet = null;
+
             foreach (T item in items)
             {
                 if (item == null)
-                    throw new ArgumentException("Null references are not allowed.");
+                {
+                    throw new ArgumentException("Null elements are not allowed.");
+                }
 
                 if (!Contains(ref hashSet, item))
                 {
-                    EnsureCapacity(ref m_Items, m_Count + 1);
-                    m_Items[m_Count++] = item;
+                    EnsureCapacity(ref _items, _count + 1);
+                    _items[_count++] = item;
                 }
             }
         }
@@ -94,10 +112,12 @@ namespace Oakbranch.Common.Collections
         public ReadOnlyHashList(IReadOnlyList<T> items)
         {
             if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
             int count = items.Count;
-            m_Items = new T[count];
+            _items = new T[count];
             HashSet<T> hashSet = null;
             T item;
 
@@ -105,10 +125,12 @@ namespace Oakbranch.Common.Collections
             {
                 item = items[i++];
                 if (item == null)
-                    throw new ArgumentException("Null references are not allowed.");
+                {
+                    throw new ArgumentException("Null elements are not allowed.");
+                }
                 if (!Contains(ref hashSet, item))
                 {
-                    m_Items[m_Count++] = item;
+                    _items[_count++] = item;
                 }
             }
         }
@@ -126,24 +148,33 @@ namespace Oakbranch.Common.Collections
                 {
                     targetLength *= 2;
                 }
+
                 T[] temp = new T[targetLength];
-                if (m_Count != 0) Array.Copy(buffer, temp, m_Count);
+                if (_count != 0)
+                {
+                    Array.Copy(buffer, temp, _count);
+                }
+
                 buffer = temp;
             }
         }
 
         private bool Contains(ref HashSet<T> hashSet, T item)
         {
-            if (hashSet == null && HashSetThreshold < m_Count)
+            if (hashSet == null && HashSetThreshold < _count)
             {
-                hashSet = new HashSet<T>(m_Items);
+                hashSet = new HashSet<T>(_items);
             }
             if (hashSet == null)
             {
-                for (int i = 0; i != m_Count; ++i)
+                for (int i = 0; i != _count; ++i)
                 {
-                    if (Equals(m_Items[i], item)) return true;
+                    if (Equals(_items[i], item))
+                    {
+                        return true;
+                    }
                 }
+
                 return false;
             }
             else
@@ -154,17 +185,15 @@ namespace Oakbranch.Common.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (m_Count == 0) yield break;
-            for (int i = 0; i != m_Count; ++i)
+            if (_count == 0) yield break;
+
+            for (int i = 0; i != _count; ++i)
             {
-                yield return m_Items[i];
+                yield return _items[i];
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<T>).GetEnumerator();
 
         #endregion
     }

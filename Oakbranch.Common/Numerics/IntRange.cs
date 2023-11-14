@@ -41,6 +41,8 @@ namespace Oakbranch.Common.Numerics
 
         #endregion
 
+        #region Instance methods
+
         public override bool Equals(object other)
         {
             if (other is IntRange range2)
@@ -72,5 +74,7 @@ namespace Oakbranch.Common.Numerics
         {
             return $"[{Floor} ; {Ceil}]";
         }
+
+        #endregion
     }
 }

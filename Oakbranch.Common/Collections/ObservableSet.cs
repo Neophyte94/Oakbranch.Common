@@ -15,46 +15,46 @@ namespace Oakbranch.Common.Collections
     {
         #region Instance members
 
-        private readonly HashSet<T> m_Items;
+        private readonly HashSet<T> _items;
 
-        public int Count => m_Items.Count;
+        public int Count => _items.Count;
 
         public bool IsReadOnly => false;
 
-        private bool m_IsDisposed;
-        protected bool IsDisposed => m_IsDisposed;
+        private bool _isDisposed;
+        protected bool IsDisposed => _isDisposed;
 
         #endregion
 
         #region Instance events
 
-        private NotifyCollectionChangedEventHandler m_CollectionChanged;
+        private NotifyCollectionChangedEventHandler _collectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
                 ThrowIfDisposed();
-                m_CollectionChanged += value;
+                _collectionChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
-                m_CollectionChanged -= value;
+                if (_isDisposed) return;
+                _collectionChanged -= value;
             }
         }
 
-        private PropertyChangedEventHandler m_PropertyChanged;
+        private PropertyChangedEventHandler _propertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
                 ThrowIfDisposed();
-                m_PropertyChanged += value;
+                _propertyChanged += value;
             }
             remove
             {
-                if (m_IsDisposed) return;
-                m_PropertyChanged -= value;
+                if (_isDisposed) return;
+                _propertyChanged -= value;
             }
         }
 
@@ -64,22 +64,22 @@ namespace Oakbranch.Common.Collections
 
         public ObservableSet()
         {
-            m_Items = new HashSet<T>();
+            _items = new HashSet<T>();
         }
 
         public ObservableSet(IEnumerable<T> collection)
         {
-            m_Items = new HashSet<T>(collection);
+            _items = new HashSet<T>(collection);
         }
 
         public ObservableSet(IEqualityComparer<T> equalityComparer)
         {
-            m_Items = new HashSet<T>(equalityComparer);
+            _items = new HashSet<T>(equalityComparer);
         }
 
         public ObservableSet(IEnumerable<T> collection, IEqualityComparer<T> equalityComparer)
         {
-            m_Items = new HashSet<T>(collection, equalityComparer);
+            _items = new HashSet<T>(collection, equalityComparer);
         }
 
         #endregion
@@ -89,34 +89,55 @@ namespace Oakbranch.Common.Collections
         // Collection implementation.
         public void Add(T item)
         {
+            ThrowIfDisposed();
             if (item == null)
+            {
                 throw new ArgumentNullException(nameof(item));
-            if (!m_Items.Add(item))
+            }
+            if (!_items.Add(item))
+            {
                 throw new ArgumentException("The collection already contains the specified item.");
-            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
-                NotifyCollectionChangedAction.Add, item));
+            }
+
+            RaiseChangeNotificationEvents(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Add,
+                    item));
         }
 
         public void Clear()
         {
-            if (m_Items.Count == 0) return;
-            m_Items.Clear();
-            RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
-                NotifyCollectionChangedAction.Reset));
+            ThrowIfDisposed();
+            if (_items.Count == 0)
+            {
+                return;
+            }
+
+            _items.Clear();
+
+            RaiseChangeNotificationEvents(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Reset));
         }
 
         public bool Contains(T item)
         {
-            return m_Items.Contains(item);
+            return _items.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
+            ThrowIfDisposed();
             if (array == null)
+            {
                 throw new ArgumentNullException(nameof(array));
+            }
             if (array.Length - arrayIndex < Count)
+            {
                 throw new ArgumentException("The specified array is too small.");
-            foreach (T item in m_Items)
+            }
+
+            foreach (T item in _items)
             {
                 array[arrayIndex++] = item;
             }
@@ -124,10 +145,13 @@ namespace Oakbranch.Common.Collections
 
         public bool Remove(T item)
         {
-            if (m_Items.Remove(item))
+            ThrowIfDisposed();
+
+            if (_items.Remove(item))
             {
-                RaiseChangeNotificationEvents(new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Remove, item));
+                RaiseChangeNotificationEvents(
+                    new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Remove, item));
                 return true;
             }
             else
@@ -138,33 +162,33 @@ namespace Oakbranch.Common.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            return m_Items.GetEnumerator();
+            ThrowIfDisposed();
+            return _items.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return m_Items.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<T>).GetEnumerator();
 
         // Miscellaneous.
         private void RaiseChangeNotificationEvents(NotifyCollectionChangedEventArgs e)
         {
-            m_PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-            m_CollectionChanged?.Invoke(this, e);
+            _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+            _collectionChanged?.Invoke(this, e);
         }
 
         protected void ThrowIfDisposed()
         {
-            if (m_IsDisposed)
+            if (_isDisposed)
+            {
                 throw new ObjectDisposedException(GetType().Name);
+            }
         }
 
         public void Dispose()
         {
-            if (!m_IsDisposed)
+            if (!_isDisposed)
             {
-                m_IsDisposed = true;
                 OnDisposing(true);
+                _isDisposed = true;
                 GC.SuppressFinalize(this);
             }
         }
@@ -173,8 +197,8 @@ namespace Oakbranch.Common.Collections
         {
             if (releaseManaged)
             {
-                m_PropertyChanged = null;
-                m_CollectionChanged = null;
+                _propertyChanged = null;
+                _collectionChanged = null;
             }
         }
 
@@ -184,10 +208,10 @@ namespace Oakbranch.Common.Collections
 
         ~ObservableSet()
         {
-            if (!m_IsDisposed)
+            if (!_isDisposed)
             {
-                m_IsDisposed = true;
                 OnDisposing(false);
+                _isDisposed = true;
             }
         }
 

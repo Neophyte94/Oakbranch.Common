@@ -14,10 +14,10 @@ namespace Oakbranch.Common.Collections
     {
         #region Instance members
 
-        private readonly T[] m_Items;
+        private readonly T[] _items;
 
-        private readonly int m_Count;
-        public int Count => m_Count;
+        private readonly int _count;
+        public int Count => _count;
 
         #endregion
 
@@ -27,9 +27,12 @@ namespace Oakbranch.Common.Collections
         {
             get
             {
-                if (index < 0 || index >= m_Count)
+                if (index < 0 || index >= _count)
+                {
                     throw new IndexOutOfRangeException();
-                return m_Items[index];
+                }
+
+                return _items[index];
             }
         }
 
@@ -39,58 +42,75 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlyList()
         {
-            m_Items = null;
-            m_Count = 0;
+            _items = null;
+            _count = 0;
         }
 
         public ReadOnlyList(T item, int count)
         {
-            m_Items = new T[count];
+            _items = new T[count];
             for (int i = 0; i != count;)
             {
-                m_Items[i++] = item;
+                _items[i++] = item;
             }
-            m_Count = count;
+            _count = count;
         }
 
         public ReadOnlyList(T[] items)
         {
-            if (items == null) 
-                throw new ArgumentNullException(nameof(items));
-            m_Count = items.Length;
-            if (m_Count > 0)
+            if (items == null)
             {
-                m_Items = new T[m_Count];
-                for (int i = 0; i != m_Count; ++i) m_Items[i] = items[i];
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            _count = items.Length;
+
+            if (_count > 0)
+            {
+                _items = new T[_count];
+                for (int i = 0; i != _count; ++i)
+                {
+                    _items[i] = items[i];
+                }
             }
         }
 
         public ReadOnlyList(IEnumerable<T> items)
         {
-            if (items == null) 
+            if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
-            m_Items = items.ToArray();
-            m_Count = m_Items.Length;
-            if (m_Count == 0) m_Items = null;
+            }
+
+            _items = items.ToArray();
+            _count = _items.Length;
+            if (_count == 0)
+            {
+                _items = null;
+            }
         }
 
         public ReadOnlyList(IEnumerable<T> items, int count)
         {
-            if (items == null) 
+            if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
-            m_Count = count;
-            m_Items = count != 0 ? new T[count] : null;
+            _count = count;
+            _items = count != 0 ? new T[count] : null;
+
             if (count != 0)
             {
                 int idx = 0;
                 foreach (T item in items)
                 {
-                    m_Items[idx++] = item;
+                    _items[idx++] = item;
                 }
                 if (count != idx)
                 {
-                    throw new ArgumentException($"The specifed count value ({count}) is different " +
+                    throw new ArgumentException(
+                        $"The specifed count value ({count}) is different " +
                         $"from the real number of items in the specified collection ({idx}).");
                 }
             }
@@ -98,25 +118,40 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlyList(IReadOnlyCollection<T> items)
         {
-            if (items == null) 
-                throw new ArgumentNullException(nameof(items));
-            m_Count = items.Count;
-            if (m_Count > 0)
+            if (items == null)
             {
-                m_Items = new T[m_Count];
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            _count = items.Count;
+
+            if (_count > 0)
+            {
+                _items = new T[_count];
                 int idx = 0;
-                foreach (T item in items) m_Items[idx++] = item;
+                foreach (T item in items)
+                {
+                    _items[idx++] = item;
+                }
             }
         }
 
         public ReadOnlyList(IList<T> items)
         {
-            if (items == null) throw new ArgumentNullException(nameof(items));
-            m_Count = items.Count;
-            if (m_Count > 0)
+            if (items == null)
             {
-                m_Items = new T[m_Count];
-                for (int i = 0; i != m_Count; ++i) m_Items[i] = items[i];
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            _count = items.Count;
+
+            if (_count > 0)
+            {
+                _items = new T[_count];
+                for (int i = 0; i != _count; ++i)
+                {
+                    _items[i] = items[i];
+                }
             }
         }
 
@@ -126,55 +161,61 @@ namespace Oakbranch.Common.Collections
 
         public bool Contains(T item)
         {
-            if (item == null) return false;
-            for (int i = 0; i != m_Count; ++i)
+            if (item == null)
             {
-                if (item.Equals(m_Items[i])) return true;
+                return false;
             }
+
+            for (int i = 0; i != _count; ++i)
+            {
+                if (item.Equals(_items[i]))
+                {
+                    return true;
+                }
+            }
+
             return false;
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            if (m_Count == 0) yield break;
-            for (int i = 0; i != m_Count; ++i)
-            {
-                yield return m_Items[i];
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public T[] ToArray()
-        {
-            if (m_Count == 0) return null;
-            T[] result = new T[m_Count];
-            m_Items.CopyTo(result, 0);
-            return result;
         }
 
         public T[] CreateCopy(int startIndex, int length)
         {
-            if (startIndex < 0 || startIndex >= m_Items.Length)
+            if (startIndex < 0 || startIndex >= _items.Length)
                 throw new ArgumentOutOfRangeException("The specified start index is out of the acceptable range.");
-            if (length < 0 || startIndex + length > m_Items.Length)
+            if (length < 0 || startIndex + length > _items.Length)
                 throw new ArgumentOutOfRangeException("The specified length is out of the valid range.");
             T[] result = new T[length];
             for (int i = 0, j = startIndex; i != length; ++i, ++j)
             {
-                result[i] = m_Items[j];
+                result[i] = _items[j];
             }
+            return result;
+        }
+
+        public T[] ToArray()
+        {
+            if (_count == 0) return null;
+            T[] result = new T[_count];
+            _items.CopyTo(result, 0);
             return result;
         }
 
         public ReadOnlySpan<T> ToSpan()
         {
-            if (m_Count == 0) return new ReadOnlySpan<T>();
-            return new ReadOnlySpan<T>(m_Items);
+            if (_count == 0) return new ReadOnlySpan<T>();
+            return new ReadOnlySpan<T>(_items);
         }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (_count == 0) yield break;
+
+            for (int i = 0; i != _count; ++i)
+            {
+                yield return _items[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<T>).GetEnumerator();
 
         #endregion
     }

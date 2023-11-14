@@ -240,7 +240,7 @@ namespace Oakbranch.Common.Utility
             try
             {
                 var addr = new MailAddress(email);
-                return String.Equals(addr.Address, email, StringComparison.InvariantCultureIgnoreCase);
+                return string.Equals(addr.Address, email, StringComparison.InvariantCultureIgnoreCase);
             }
             catch
             {

@@ -9,9 +9,7 @@ namespace Oakbranch.Common.Data
         public int Order { get; set; }
         public virtual bool Unique { get; set; }
 
-        public IndexedAttribute()
-        {
-        }
+        public IndexedAttribute() { }
 
         public IndexedAttribute(string name, int order)
         {

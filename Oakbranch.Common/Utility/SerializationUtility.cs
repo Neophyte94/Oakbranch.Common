@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.Json;
@@ -73,7 +72,11 @@ namespace Oakbranch.Common.Utility
             {
                 byte[] buffer = new byte[4];
                 int bytesRead = inputStream.Read(buffer, 0, 4);
-                if (bytesRead != 4) return false;
+                if (bytesRead != 4)
+                {
+                    return false;
+                }
+
                 int length = BitConverter.ToInt32(buffer, 0);
                 if (length > 0)
                 {
@@ -85,23 +88,20 @@ namespace Oakbranch.Common.Utility
                         return false;
                     }
                 }
+
                 return true;
             }
-            catch (Exception exc)
+            catch
             {
-#if DEBUG
-                Console.WriteLine(
-                    "An error occurred while reading a serialized byte array. " +
-                    "The error's description: \n{0}.", exc);
-#endif
                 return false;
             }
         }
 
         public static void WriteString(this Stream outputStream, string value)
         {
-            WriteByteArray(outputStream, String.IsNullOrEmpty(value) ?
-                null : Encoding.UTF8.GetBytes(value));
+            WriteByteArray(outputStream, string.IsNullOrEmpty(value)
+                ? null
+                : Encoding.UTF8.GetBytes(value));
         }
 
         public static bool TryReadString(this Stream inputStream, out string value)
@@ -134,13 +134,8 @@ namespace Oakbranch.Common.Utility
                     return false;
                 }
             }
-            catch (Exception exc)
+            catch
             {
-#if DEBUG
-                Console.WriteLine(
-                    "An error occurred while reading a serialized byte. " +
-                    "The error's description: \n{0}.", exc);
-#endif
                 return false;
             }
         }
@@ -161,13 +156,8 @@ namespace Oakbranch.Common.Utility
                     return false;
                 }
             }
-            catch (Exception exc)
+            catch
             {
-#if DEBUG
-                Console.WriteLine(
-                    "An error occurred while reading a serialized 32-bit integer. " +
-                    "The error's description: \n{0}.", exc);
-#endif
                 return false;
             }
         }
@@ -188,13 +178,8 @@ namespace Oakbranch.Common.Utility
                     return false;
                 }
             }
-            catch (Exception exc)
+            catch
             {
-#if DEBUG
-                Console.WriteLine(
-                    "An error occurred while reading a serialized 64-bit integer. " +
-                    "The error's description: \n{0}.", exc);
-#endif
                 return false;
             }
         }
@@ -202,17 +187,28 @@ namespace Oakbranch.Common.Utility
         public static void WriteDictionary(Utf8JsonWriter writer, IReadOnlyCollection<KeyValuePair<string, object>> content, string propertyName)
         {
             if (writer == null)
+            {
                 throw new ArgumentNullException(nameof(writer));
+            }
             if (content == null)
+            {
                 throw new ArgumentNullException(nameof(content));
-            if (String.IsNullOrWhiteSpace(propertyName))
+            }
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
                 throw new ArgumentNullException(nameof(propertyName));
+            }
   
             writer.WriteStartArray(propertyName);
             writer.WriteNumberValue(content.Count);
+
             foreach (KeyValuePair<string, object> pair in content)
             {
-                if (pair.Value == null) continue;
+                if (pair.Value == null)
+                {
+                    continue;
+                }
+
                 writer.WriteStringValue(pair.Key);
                 switch (pair.Value)
                 {
@@ -257,19 +253,24 @@ namespace Oakbranch.Common.Utility
                         writer.WriteEndArray();
                         break;
                     default:
-                        throw new NotSupportedException($"Values of the type {pair.Value.GetType().Name} are not supported.");
+                        throw new NotSupportedException(
+                            $"Values of the type {pair.Value.GetType().Name} are not supported.");
                 }
             }
+
             writer.WriteEndArray();
         }
 
         public static List<KeyValuePair<string, object>> ReadDictionary(ref Utf8JsonStreamReader reader)
         {
             if (reader.TokenType != JsonTokenType.StartArray)
+            {
                 throw new JsonException($"An array's start was expected but \"{reader.TokenType}\" encountered.");
-
+            }
             if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+            {
                 throw new JsonException($"A timeseries count value was expected but \"{reader.TokenType}\" encountered.");
+            }
 
             int count = reader.GetInt32();
             string key;
@@ -279,16 +280,23 @@ namespace Oakbranch.Common.Utility
             while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
             {
                 if (reader.TokenType != JsonTokenType.String)
+                {
                     throw new JsonException($"A pair key was expected but \"{reader.TokenType}\" encountered.");
+                }
 
                 key = reader.GetString();
 
                 if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                {
                     throw new JsonException($"A pair discriminator was expected but \"{reader.TokenType}\" encountered.");
+                }
                 discr = reader.GetByte();
 
                 if (!reader.Read())
+                {
                     throw new JsonException($"A pair value was expected but \"{reader.TokenType}\" encountered.");
+                }
+
                 if (discr == StringItemDiscr)
                 {
                     content.Add(new KeyValuePair<string, object>(key, reader.GetString()));
@@ -308,10 +316,13 @@ namespace Oakbranch.Common.Utility
                 else if (discr == StringsListItemDiscr)
                 {
                     if (reader.TokenType != JsonTokenType.StartArray)
+                    {
                         throw new JsonException($"The start of a string items array was expected but \"{reader.TokenType}\" encountered.");
-
+                    }
                     if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                    {
                         throw new JsonException($"The size of a string items array was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     List<string> items = new List<string>(reader.GetInt32());
 
                     while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
@@ -320,41 +331,59 @@ namespace Oakbranch.Common.Utility
                     }
 
                     if (reader.TokenType != JsonTokenType.EndArray)
+                    {
                         throw new JsonException($"The end of the string items array was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     content.Add(new KeyValuePair<string, object>(key, items));
                 }
                 else if (discr == IntRangeDiscr)
                 {
                     if (reader.TokenType != JsonTokenType.StartArray)
+                    {
                         throw new JsonException($"The start of a numbers array was expected but \"{reader.TokenType}\" encountered.");
-
+                    }
                     if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                    {
                         throw new JsonException($"The floor number was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     int floor = reader.GetInt32();
 
                     if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                    {
                         throw new JsonException($"The ceil number was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     int ceil = reader.GetInt32();
 
                     if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                    {
                         throw new JsonException($"The end of the numbers array was expected but \"{reader.TokenType}\" encountered.");
+                    }
+
                     content.Add(new KeyValuePair<string, object>(key, new IntRange(floor, ceil)));
                 }
                 else if (discr == DoubleRangeDiscr)
                 {
                     if (reader.TokenType != JsonTokenType.StartArray)
+                    {
                         throw new JsonException($"The start of a numbers array was expected but \"{reader.TokenType}\" encountered.");
-
+                    }
                     if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                    {
                         throw new JsonException($"The floor number was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     double floor = reader.GetDouble();
 
                     if (!reader.Read() || reader.TokenType != JsonTokenType.Number)
+                    {
                         throw new JsonException($"The ceil number was expected but \"{reader.TokenType}\" encountered.");
+                    }
                     double ceil = reader.GetDouble();
 
                     if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+                    {
                         throw new JsonException($"The end of the numbers array was expected but \"{reader.TokenType}\" encountered.");
+                    }
+
                     content.Add(new KeyValuePair<string, object>(key, new DoubleRange(floor, ceil)));
                 }
             }

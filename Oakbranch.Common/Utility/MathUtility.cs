@@ -87,7 +87,10 @@ namespace Oakbranch.Common.Utility
         /// or their values are approximately equal, otherwise <see langword="false"/>.</returns>
         public static bool ApprEqual(in float? a, in float? b)
         {
-            if (a != null && b != null) return Math.Abs(a.Value - b.Value) < 0.0000001f;
+            if (a != null && b != null)
+            {
+                return Math.Abs(a.Value - b.Value) < 0.0000001f;
+            }
             else return a == b;
         }
 
@@ -169,20 +172,6 @@ namespace Oakbranch.Common.Utility
         }
 
         /// <summary>
-        /// Determines whether the specified value is a normal number.
-        /// </summary>
-        /// <param name="a">The value to check for normality.</param>
-        /// <returns><see langword="true"/> if the <paramref name="a"/> is a normal number, otherwise <see langword="false"/>.</returns>
-        private static bool IsNormal(this in float a)
-        {
-#if NET_7_0
-            return float.IsNormal(a);
-#else
-            return !float.IsNaN(a) && !float.IsInfinity(a) && !a.ApprZero();
-#endif
-        }
-
-        /// <summary>
         /// Returns the greatest of three values.
         /// </summary>
         /// <param name="a">The first value.</param>
@@ -213,11 +202,15 @@ namespace Oakbranch.Common.Utility
         public static float Max(params float[] values)
         {
             float biggest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] > biggest)
+                {
                     biggest = values[i];
+                }
             }
+
             return biggest;
         }
 
@@ -252,11 +245,15 @@ namespace Oakbranch.Common.Utility
         public static double Max(params double[] values)
         {
             double biggest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] > biggest)
+                {
                     biggest = values[i];
+                }
             }
+
             return biggest;
         }
 
@@ -291,11 +288,15 @@ namespace Oakbranch.Common.Utility
         public static decimal Max(params decimal[] values)
         {
             decimal biggest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] > biggest)
+                {
                     biggest = values[i];
+                }
             }
+
             return biggest;
         }
 
@@ -328,11 +329,15 @@ namespace Oakbranch.Common.Utility
         public static int Max(params int[] values)
         {
             int biggest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] > biggest)
+                {
                     biggest = values[i];
+                }
             }
+
             return biggest;
         }
 
@@ -344,10 +349,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The maximum <see cref="TimeSpan"/> value between <paramref name="a"/> and <paramref name="b"/>.</returns>
         public static TimeSpan Max(in TimeSpan a, in TimeSpan b)
         {
-            if (b > a)
-                return b;
-            else
-                return a;
+            return b > a ? b : a;
         }
 
         /// <summary>
@@ -358,10 +360,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The maximum <see cref="DateTime"/> value between <paramref name="a"/> and <paramref name="b"/>.</returns>
         public static DateTime Max(in DateTime a, in DateTime b)
         {
-            if (b > a)
-                return b;
-            else
-                return a;
+            return b > a ? b : a;
         }
 
         /// <summary>
@@ -393,11 +392,15 @@ namespace Oakbranch.Common.Utility
         public static double Min(params double[] values)
         {
             double smallest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] < smallest)
+                {
                     smallest = values[i];
+                }
             }
+
             return smallest;
         }
 
@@ -432,11 +435,15 @@ namespace Oakbranch.Common.Utility
         public static decimal Min(params decimal[] values)
         {
             decimal smallest = values[0];
+
             for (int i = 1; i != values.Length; ++i)
             {
                 if (values[i] < smallest)
+                {
                     smallest = values[i];
+                }
             }
+
             return smallest;
         }
 
@@ -448,10 +455,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The minimum <see cref="TimeSpan"/> value between <paramref name="a"/> and <paramref name="b"/>.</returns>
         public static TimeSpan Min(in TimeSpan a, in TimeSpan b)
         {
-            if (b < a)
-                return b;
-            else
-                return a;
+            return b < a ? b : a;
         }
 
         /// <summary>
@@ -462,10 +466,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The minimum <see cref="DateTime"/> value between <paramref name="a"/> and <paramref name="b"/>.</returns>
         public static DateTime Min(in DateTime a, in DateTime b)
         {
-            if (b < a)
-                return b;
-            else
-                return a;
+            return b < a ? b : a;
         }
 
         /// <summary>
@@ -487,6 +488,7 @@ namespace Oakbranch.Common.Utility
         public static float Lerp(in float a, in float b, in float percent)
         {
             const float maxThreshold = 1.0f - float.Epsilon;
+
             if (percent < float.Epsilon)
             {
                 return a;
@@ -520,6 +522,7 @@ namespace Oakbranch.Common.Utility
         public static double Lerp(in double a, in double b, in double percent)
         {
             const double maxThreshold = 1.0 - double.Epsilon;
+
             if (percent < double.Epsilon)
             {
                 return a;
@@ -551,7 +554,8 @@ namespace Oakbranch.Common.Utility
         /// </list>
         /// </returns>
         [Obsolete("Use the method Lerp() instead.")]
-        public static float LinearlyInterpolate(in float a, in float b, in float percent) => Lerp(in a, in b, in percent);
+        public static float LinearlyInterpolate(in float a, in float b, in float percent)
+            => Lerp(in a, in b, in percent);
 
         /// <summary>
         /// Performs linear interpolation between two values based on the specified percentage.
@@ -570,7 +574,8 @@ namespace Oakbranch.Common.Utility
         /// </list>
         /// </returns>
         [Obsolete("Use the method Lerp() instead.")]
-        public static double LinearlyInterpolate(in double a, in double b, in double percent) => Lerp(in a, in b, in percent);
+        public static double LinearlyInterpolate(in double a, in double b, in double percent)
+            => Lerp(in a, in b, in percent);
 
         /// <summary>
         /// Returns a value constrained within the specified range.
@@ -584,9 +589,18 @@ namespace Oakbranch.Common.Utility
         /// Otherwise, it returns <paramref name="value"/>.</returns>
         public static float Clamp(in float value, in float min, in float max)
         {
-            if (value < min) return min;
-            else if (value > max) return max;
-            return value;
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         /// <summary>
@@ -601,9 +615,18 @@ namespace Oakbranch.Common.Utility
         /// Otherwise, it returns <paramref name="value"/>.</returns>
         public static double Clamp(in double value, in double min, in double max)
         {
-            if (value < min) return min;
-            else if (value > max) return max;
-            return value;
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         /// <summary>
@@ -618,9 +641,18 @@ namespace Oakbranch.Common.Utility
         /// Otherwise, it returns <paramref name="value"/>.</returns>
         public static decimal Clamp(in decimal value, in decimal min, in decimal max)
         {
-            if (value < min) return min;
-            else if (value > max) return max;
-            return value;
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         /// <summary>
@@ -635,9 +667,18 @@ namespace Oakbranch.Common.Utility
         /// Otherwise, it returns <paramref name="value"/>.</returns>
         public static int Clamp(in int value, in int min, in int max)
         {
-            if (value < min) return min;
-            else if (value > max) return max;
-            return value;
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         /// <summary>
@@ -652,9 +693,18 @@ namespace Oakbranch.Common.Utility
         /// Otherwise, it returns <paramref name="value"/>.</returns>
         public static long Clamp(in long value, in long min, in long max)
         {
-            if (value < min) return min;
-            else if (value > max) return max;
-            return value;
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         /// <summary>
@@ -704,8 +754,14 @@ namespace Oakbranch.Common.Utility
             if (value > -0.0000001f)
             {
                 int iVal = (int)value;
-                if (value - iVal > 0.0000001f) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.0000001f)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
@@ -724,8 +780,14 @@ namespace Oakbranch.Common.Utility
             if (value > -0.00000000000001)
             {
                 int iVal = (int)value;
-                if (value - iVal > 0.00000000000001) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.00000000000001)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
@@ -740,10 +802,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The smallest integer that is greater or equal to the quotient of the specified numbers.</returns>
         public static int Ceil(in int dividend, in int divisor)
         {
-            if (dividend % divisor == 0) 
-                return dividend / divisor;
-            else 
-                return dividend / divisor + 1;
+            return dividend % divisor == 0 ? dividend / divisor : dividend / divisor + 1;
         }
 
         /// <summary>
@@ -753,10 +812,7 @@ namespace Oakbranch.Common.Utility
         /// <returns>The smallest integer that is greater or equal to the quotient of the specified numbers.</returns>
         public static long Ceil(in long dividend, in long divisor)
         {
-            if (dividend % divisor == 0)
-                return dividend / divisor;
-            else
-                return dividend / divisor + 1;
+            return dividend % divisor == 0 ? dividend / divisor : dividend / divisor + 1;
         }
 
         /// <summary>
@@ -770,8 +826,14 @@ namespace Oakbranch.Common.Utility
             if (value < -0.0000001f)
             {
                 int iVal = (int)value;
-                if (value - iVal > 0.0000001f) return --iVal;
-                else return iVal;
+                if (value - iVal > 0.0000001f)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
@@ -790,8 +852,14 @@ namespace Oakbranch.Common.Utility
             if (value < -0.00000000000001)
             {
                 int iVal = (int)value;
-                if (value - iVal > 0.00000000000001) return --iVal;
-                else return iVal;
+                if (value - iVal > 0.00000000000001)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
@@ -809,13 +877,25 @@ namespace Oakbranch.Common.Utility
             int iVal = (int)value;
             if (value < -0.0000001f)
             {
-                if (iVal - value > 0.4999999f) return --iVal;
-                else return iVal;
+                if (iVal - value > 0.4999999f)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
-                if (value - iVal > 0.4999999f) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.4999999f)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
         }
 
@@ -829,13 +909,25 @@ namespace Oakbranch.Common.Utility
             int iVal = (int)value;
             if (value < -0.00000000000001)
             {
-                if (iVal - value > 0.49999999999999) return --iVal;
-                else return iVal;
+                if (iVal - value > 0.49999999999999)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
-                if (value - iVal > 0.49999999999999) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.49999999999999)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
         }
 
@@ -849,13 +941,25 @@ namespace Oakbranch.Common.Utility
             long iVal = (long)value;
             if (value < -0.0000001f)
             {
-                if (iVal - value > 0.4999999f) return --iVal;
-                else return iVal;
+                if (iVal - value > 0.4999999f)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
-                if (value - iVal > 0.4999999f) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.4999999f)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
         }
 
@@ -869,13 +973,25 @@ namespace Oakbranch.Common.Utility
             int iVal = (int)value;
             if (value < -0.00000000000001)
             {
-                if (iVal - value > 0.49999999999999) return --iVal;
-                else return iVal;
+                if (iVal - value > 0.49999999999999)
+                {
+                    return --iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
             else
             {
-                if (value - iVal > 0.49999999999999) return ++iVal;
-                else return iVal;
+                if (value - iVal > 0.49999999999999)
+                {
+                    return ++iVal;
+                }
+                else
+                {
+                    return iVal;
+                }
             }
         }
 
@@ -929,18 +1045,6 @@ namespace Oakbranch.Common.Utility
             return Math.Cbrt(value);
 #else
             return Math.Pow(value, 0.3333333333333);
-#endif
-        }
-
-        /// <summary>
-        /// Gets a cubic root of the specified number.
-        /// </summary>
-        private static float GetCubicRoot(this in float value)
-        {
-#if NET_7_0
-            return MathF.Cbrt(value);
-#else
-            return (float)Math.Pow(value, 0.3333333333333);
 #endif
         }
 
@@ -1059,10 +1163,12 @@ namespace Oakbranch.Common.Utility
         public static double GetSum(this double[] values)
         {
             double sum = 0.0;
+
             for (int i = 0; i != values.Length;)
             {
                 sum += values[i++];
             }
+
             return sum;
         }
 
@@ -1074,14 +1180,20 @@ namespace Oakbranch.Common.Utility
         public static int Power(int x, int y)
         {
             if (y == 0)
+            {
                 return 1;
+            }
             else if (y < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(y));
+            }
+
             int power = x;
             while (--y != 0)
             {
                 power *= x;
             }
+
             return power;
         }
 
@@ -1093,14 +1205,20 @@ namespace Oakbranch.Common.Utility
         public static long Power(long x, long y)
         {
             if (y == 0)
+            {
                 return 1;
+            }
             else if (y < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(y));
+            }
+
             long power = x;
             while (--y != 0)
             {
                 power *= x;
             }
+
             return power;
         }
 
@@ -1111,20 +1229,27 @@ namespace Oakbranch.Common.Utility
         public static int PowerOf10(int y)
         {
             if (y == 0)
+            {
                 return 1;
+            }
             else if (y < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(y));
+            }
 #if DEBUG
             else if (y > 9)
+            {
                 throw new ArgumentOutOfRangeException(
                     nameof(y),
                     "An exponent cannot be greater than 9 for the Int32 overload of this method.");
+            }
 #endif
             int power = 10;
             while (--y != 0)
             {
                 power *= 10;
             }
+
             return power;
         }
 
@@ -1135,20 +1260,27 @@ namespace Oakbranch.Common.Utility
         public static long PowerOf10(long y)
         {
             if (y == 0)
+            {
                 return 1;
+            }
             else if (y < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(y));
+            }
 #if DEBUG
             else if (y > 18)
+            {
                 throw new ArgumentOutOfRangeException(
                     nameof(y),
                     "An exponent cannot be greater than 18 for the Int64 overload of this method.");
+            }
 #endif
             long power = 10;
             while (--y != 0)
             {
                 power *= 10;
             }
+
             return power;
         }
 
@@ -1170,7 +1302,9 @@ namespace Oakbranch.Common.Utility
         public static decimal GetEpsilon(int precision)
         {
             if (precision < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(precision));
+            }
 
             decimal val = 1.0M;
             while (precision-- != 0)
@@ -1187,7 +1321,9 @@ namespace Oakbranch.Common.Utility
         public static List<int> GetFactors(int number)
         {
             if (number < 1)
+            {
                 throw new ArgumentOutOfRangeException(nameof(number));
+            }
 
             List<int> factors = new List<int>(Convert.ToInt32(10 * Math.Log10(number)));
             Stack<int> mirror = new Stack<int>(factors.Capacity / 2 + 1);
@@ -1224,7 +1360,9 @@ namespace Oakbranch.Common.Utility
         public static bool IsPrimeNumber(in int number)
         {
             if (number < 1)
+            {
                 throw new ArgumentOutOfRangeException(nameof(number));
+            }
 
             if (number < 4) return true;
 
@@ -1244,7 +1382,9 @@ namespace Oakbranch.Common.Utility
         public static Queue<int> GetDigits(int number)
         {
             if (number < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(number));
+            }
 
             int digitExtractor = 1;
             Queue<int> digits = new Queue<int>(4);
@@ -1267,7 +1407,9 @@ namespace Oakbranch.Common.Utility
         public static int GetRecursiveDigitsSum(int number)
         {
             if (number < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(number));
+            }
             
             int sum = number;
 
@@ -1279,7 +1421,9 @@ namespace Oakbranch.Common.Utility
                 {
                     sum = digits.Dequeue();
                     if (digits.Count != 0)
+                    {
                         sum += digits.Dequeue();
+                    }
                     digits.Enqueue(sum);
                 }
 
@@ -1300,11 +1444,17 @@ namespace Oakbranch.Common.Utility
             in float sigmaMultiplier = InvStdNormDistribution0999)
         {
             if (eventProbability < 0.0f || eventProbability > 1.0f)
+            {
                 throw new ArgumentOutOfRangeException(nameof(eventProbability));
+            }
             if (numberOfTests < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(numberOfTests));
+            }
             if (sigmaMultiplier < 0.0f)
+            {
                 throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
+            }
 
             double statError = sigmaMultiplier * Math.Sqrt(eventProbability * (1.0f - eventProbability) * numberOfTests);
             return Math.Min(numberOfTests, CeilToInt(numberOfTests * eventProbability + statError));
@@ -1321,12 +1471,18 @@ namespace Oakbranch.Common.Utility
             in float sigmaMultiplier = InvStdNormDistribution0999)
         {
             if (eventProbability < 0.0001f || eventProbability > 1.0f)
+            {
                 throw new ArgumentOutOfRangeException(nameof(eventProbability));
+            }
             if (sigmaMultiplier < 0.0f)
+            {
                 throw new ArgumentOutOfRangeException(nameof(sigmaMultiplier));
+            }
 
             if (occurrencesMin < 1)
+            {
                 return 0;
+            }
 
             double sqrNormQ = sigmaMultiplier * sigmaMultiplier * (1.0 - eventProbability);
             return CeilToInt(

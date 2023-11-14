@@ -46,8 +46,7 @@ namespace Oakbranch.Common.Utility
             }
             finally
             {
-                if (registeredHandle != null)
-                    registeredHandle.Unregister(null);
+                registeredHandle?.Unregister(null);
             }
         }
 
@@ -94,8 +93,7 @@ namespace Oakbranch.Common.Utility
             }
             finally
             {
-                if (registeredHandle != null)
-                    registeredHandle.Unregister(null);
+                registeredHandle?.Unregister(null);
                 tokenRegistration.Dispose();
             }
         }
@@ -108,8 +106,8 @@ namespace Oakbranch.Common.Utility
         /// <param name="handle">The handle to wait for.</param>
         /// <param name="cancellationToken">The cancellation token for the waiting operation.</param>
         /// <returns>A task representing the asynchronous operation. The task's result is <see langword="true"/> if the handle was set; otherwise, <see langword="false"/>.</returns>
-        public static Task<bool> WaitOneAsync(this WaitHandle handle, CancellationToken cancellationToken) => 
-            handle.WaitOneAsync(Timeout.Infinite, cancellationToken);
+        public static Task<bool> WaitOneAsync(this WaitHandle handle, CancellationToken cancellationToken)
+            => handle.WaitOneAsync(Timeout.Infinite, cancellationToken);
 
         /// <summary>
         /// Represents the given cancellation token as a task that awaits cancellation.

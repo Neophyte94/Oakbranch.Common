@@ -88,10 +88,13 @@ namespace Oakbranch.Common.Numerics
         public FloatRange(float floor, float ceil)
         {
             if (float.IsNaN(floor))
+            {
                 throw new ArgumentException("A floor value must be a number.");
+            }
             if (float.IsNaN(ceil))
+            {
                 throw new ArgumentException("A ceil value must be a number.");
-
+            }
             if (ceil < floor)
             {
                 throw new ArgumentException(
