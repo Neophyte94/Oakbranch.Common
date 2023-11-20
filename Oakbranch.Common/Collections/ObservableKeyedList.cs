@@ -16,7 +16,7 @@ namespace Oakbranch.Common.Collections
     {
         #region Constants
 
-        public const int DictionaryThreshold = 10;
+        private const int DICTIONARY_THRESHOLD = 10;
 
         #endregion
 
@@ -46,14 +46,20 @@ namespace Oakbranch.Common.Collections
             }
             set
             {
+                ThrowIfDisposed();
                 if (index < 0 || index >= _list.Count)
+                {
                     throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
+                }
 
                 ValidateNewItem(value);
                 TValue itemToRemove = _list[index];
                 TKey newKey = GetKey(value);
                 TKey oldKey = GetKey(itemToRemove);
-                if (ReferenceEquals(itemToRemove, value)) return;
+                if (ReferenceEquals(itemToRemove, value))
+                {
+                    return;
+                }
 
                 if (CheckDictionaryState())
                 {
@@ -67,7 +73,9 @@ namespace Oakbranch.Common.Collections
                     {
                         TKey existingKey = GetKey(_list[i++]);
                         if (existingKey.Equals(newKey) && !existingKey.Equals(oldKey))
+                        {
                             throw GenerateItemAlreadyExistsException();
+                        }
                     }
                 }
 
@@ -81,7 +89,10 @@ namespace Oakbranch.Common.Collections
 
                 RaiseChangeNotificationEvents(
                     new NotifyCollectionChangedEventArgs(
-                        NotifyCollectionChangedAction.Replace, value, itemToRemove, index));
+                        NotifyCollectionChangedAction.Replace,
+                        value,
+                        itemToRemove,
+                        index));
             }
         }
 
@@ -205,8 +216,12 @@ namespace Oakbranch.Common.Collections
                 int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
-                    if (GetKey(this[i]).Equals(key)) return true;
+                    if (GetKey(this[i]).Equals(key))
+                    {
+                        return true;
+                    }
                 }
+
                 return false;
             }
         }
@@ -228,33 +243,50 @@ namespace Oakbranch.Common.Collections
                 int count = _list.Count;
                 for (int i = 0; i != count; ++i)
                 {
-                    if (GetKey(this[i]).Equals(key)) return i;
+                    if (GetKey(this[i]).Equals(key))
+                    {
+                        return i;
+                    }
                 }
             }
+
             return -1;
         }
 
         public void Add(TValue item)
         {
+            ThrowIfDisposed();
             InsertInternal(item, -1);
         }
 
         public void AddRange(IEnumerable<TValue> items)
         {
+            ThrowIfDisposed();
             if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
             if (!_isDisposed && _dictionary == null)
             {
                 int capacity = _list.Count;
                 if (items is ICollection<TValue> c)
+                {
                     capacity += c.Count;
+                }
                 else if (items is TValue[] a)
+                {
                     capacity += a.Length;
+                }
                 else
+                {
                     capacity <<= 1;
+                }
 
-                if (capacity >= DictionaryThreshold) CreateDictionary(capacity);
+                if (capacity >= DICTIONARY_THRESHOLD)
+                {
+                    CreateDictionary(capacity);
+                }
             }
 
             int startIdx = _list.Count;
@@ -275,7 +307,9 @@ namespace Oakbranch.Common.Collections
                     for (int i = 0; i != count;)
                     {
                         if (GetKey(_list[i++]).Equals(key))
+                        {
                             throw GenerateItemAlreadyExistsException();
+                        }
                     }
                 }
             }
@@ -293,12 +327,17 @@ namespace Oakbranch.Common.Collections
 
             RaiseChangeNotificationEvents(
                 new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Add, new List<TValue>(items), startIdx));
+                    NotifyCollectionChangedAction.Add,
+                    new List<TValue>(items),
+                    startIdx));
         }
 
         public void Clear()
         {
-            if (_list.Count == 0) return;
+            if (_list.Count == 0)
+            {
+                return;
+            }
 
             List<TValue> oldList = _list;
             _list = new List<TValue>(oldList.Capacity);
@@ -324,8 +363,13 @@ namespace Oakbranch.Common.Collections
 
         public void Insert(int index, TValue item)
         {
+            ThrowIfDisposed();
             if (index < 0 || index > _list.Count)
+            {
                 throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count);
+            }
+
+            InsertInternal(item, index);
         }
 
         private void InsertInternal(TValue item, int index)
@@ -345,7 +389,9 @@ namespace Oakbranch.Common.Collections
                 for (int i = 0; i != count;)
                 {
                     if (GetKey(_list[i++]).Equals(key))
+                    {
                         throw GenerateItemAlreadyExistsException();
+                    }
                 }
             }
 
@@ -369,13 +415,20 @@ namespace Oakbranch.Common.Collections
             // Raise the public-scope notifications.
             RaiseChangeNotificationEvents(
                 new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Add, item, index));
+                    NotifyCollectionChangedAction.Add,
+                    item,
+                    index));
         }
 
         public bool Remove(TValue item)
         {
+            ThrowIfDisposed();
+
             int index = _list.IndexOf(item);
-            if (index == -1) return false;
+            if (index == -1)
+            {
+                return false;
+            }
 
             _list.RemoveAt(index);
             if (_dictionary != null && !_isDisposed)
@@ -390,12 +443,21 @@ namespace Oakbranch.Common.Collections
 
             RaiseChangeNotificationEvents(
                 new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Remove, item, index));
+                    NotifyCollectionChangedAction.Remove,
+                    item,
+                    index));
+
             return true;
         }
 
         public void RemoveAt(int index)
         {
+            ThrowIfDisposed();
+            if (index < 0 || index >= _list.Count)
+            {
+                throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
+            }
+
             TValue item = _list[index];
             _list.RemoveAt(index);
             if (_dictionary != null && !_isDisposed)
@@ -410,7 +472,9 @@ namespace Oakbranch.Common.Collections
 
             RaiseChangeNotificationEvents(
                 new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Remove, item, index));
+                    NotifyCollectionChangedAction.Remove,
+                    item,
+                    index));
         }
 
         public bool TryGetValue(TKey key, out TValue value)
@@ -425,8 +489,12 @@ namespace Oakbranch.Common.Collections
                 for (int i = 0; i != count; ++i)
                 {
                     value = this[i];
-                    if (GetKey(value).Equals(key)) return true;
+                    if (GetKey(value).Equals(key))
+                    {
+                        return true;
+                    }
                 }
+
                 value = default;
                 return false;
             }
@@ -453,17 +521,18 @@ namespace Oakbranch.Common.Collections
             return _list.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _list.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<TValue>).GetEnumerator();
 
         // Internal dictionary management.
         private bool CheckDictionaryState()
         {
             if (_dictionary == null)
             {
-                if (_isDisposed || _list.Count < DictionaryThreshold) return false;
+                if (_isDisposed || _list.Count < DICTIONARY_THRESHOLD)
+                {
+                    return false;
+                }
+
                 CreateDictionary(_list.Count << 1);
                 return true;
             }
@@ -501,13 +570,16 @@ namespace Oakbranch.Common.Collections
             {
                 _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
             }
+
             _collectionChanged?.Invoke(this, e);
         }
 
         protected void ThrowIfDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(GetType().Name);
+            }
         }
 
         /// <summary>
@@ -521,7 +593,10 @@ namespace Oakbranch.Common.Collections
 
         private void Dispose(bool releaseManaged)
         {
-            if (_isDisposed) return;
+            if (_isDisposed)
+            {
+                return;
+            }
 
             if (releaseManaged)
             {
