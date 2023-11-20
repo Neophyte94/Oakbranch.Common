@@ -11,7 +11,7 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="T"></typeparam>
     public sealed class FreezableList<T> : IList<T>
     {
-        #region Instance members
+        #region Instance props & fields
 
         private T[] _items;
 

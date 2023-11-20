@@ -14,7 +14,7 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ReadOnlyObservableList<T> : ReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
     {
-        #region Instance members
+        #region Instance props & fields
 
         private bool m_IsDisposed;
 

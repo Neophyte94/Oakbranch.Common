@@ -11,7 +11,7 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="T">The type of the elements.</typeparam>
     public sealed class ReadOnlyBuffer<T> : IReadOnlyList<T>
     {
-        #region Instance members
+        #region Instance props & fields
 
         private readonly T[] _buffer;
         private readonly int _fromIdx;

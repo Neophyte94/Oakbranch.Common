@@ -7,7 +7,7 @@ namespace Oakbranch.Common.Numerics
     /// </summary>
     public readonly struct IntRange
     {
-        #region Instance members
+        #region Instance props & fields
 
         /// <summary>
         /// The lower inclusive bound of a range.

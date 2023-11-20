@@ -13,7 +13,7 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ObservableList<T> : IObservableList<T>, IDisposable
     {
-        #region Instance members
+        #region Instance props & fields
 
         private List<T> _items;
 

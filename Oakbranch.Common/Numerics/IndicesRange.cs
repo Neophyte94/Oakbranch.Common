@@ -7,7 +7,7 @@ namespace Oakbranch.Common.Numerics
     /// </summary>
     public readonly struct IndicesRange
     {
-        #region Instance members
+        #region Instance props & fields
 
         /// <summary>
         /// The first integer number in a range.

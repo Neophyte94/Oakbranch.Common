@@ -22,7 +22,7 @@ namespace Oakbranch.Common.Numerics
 
         #endregion
 
-        #region Instance members
+        #region Instance props & fields
 
         /// <summary>
         /// The lower inclusive bound of a range.

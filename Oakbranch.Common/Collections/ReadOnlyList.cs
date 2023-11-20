@@ -12,7 +12,7 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ReadOnlyList<T> : IReadOnlyList<T>
     {
-        #region Instance members
+        #region Instance props & fields
 
         private readonly T[] _items;
 

@@ -14,13 +14,13 @@ namespace Oakbranch.Common.Collections
     /// <typeparam name="TValue">The type of elements in the list.</typeparam>
     public abstract class ObservableKeyedList<TKey, TValue> : IObservableList<TValue>, IDisposable
     {
-        #region Static members
+        #region Constants
 
         public const int DictionaryThreshold = 10;
 
         #endregion
 
-        #region Instance members
+        #region Instance props & fields
 
         private List<TValue> _list;
         private Dictionary<TKey, TValue> _dictionary;

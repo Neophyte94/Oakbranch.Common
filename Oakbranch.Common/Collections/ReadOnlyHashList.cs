@@ -17,7 +17,7 @@ namespace Oakbranch.Common.Collections
 
         #endregion
 
-        #region Instance members
+        #region Instance props & fields
 
         private readonly T[] _items;
 
