@@ -14,7 +14,8 @@ namespace Oakbranch.Common.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
-    public sealed class ReadOnlyObservableDictionary<TKey, TValue> : IReadOnlyObservableDictionary<TKey, TValue>, IDisposable
+    public sealed class ReadOnlyObservableDictionary<TKey, TValue>
+        : IReadOnlyObservableDictionary<TKey, TValue>, IDisposable
     {
         #region Instance props & fields
 
@@ -77,16 +78,22 @@ namespace Oakbranch.Common.Collections
         public ReadOnlyObservableDictionary(IEnumerable<TValue> values, Func<TValue, TKey> selector)
         {
             if (values == null)
+            {
                 throw new ArgumentNullException(nameof(values));
+            }
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             int count = -1;
             if (values is ICollection ic) { count = ic.Count; }
             else if (values is TValue[] array) { count = array.Length; }
 
-            Dictionary<TKey, TValue> temp = 
-                count == -1 ? new Dictionary<TKey, TValue>() : new Dictionary<TKey, TValue>(count);
+            Dictionary<TKey, TValue> temp = count == -1
+                ? new Dictionary<TKey, TValue>()
+                : new Dictionary<TKey, TValue>(count);
+
             foreach (TValue val in values)
             {
                 temp.Add(selector(val), val);
@@ -98,14 +105,18 @@ namespace Oakbranch.Common.Collections
         public ReadOnlyObservableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> pairs)
         {
             if (pairs == null)
+            {
                 throw new ArgumentNullException(nameof(pairs));
+            }
 
             int count = -1;
             if (pairs is ICollection ic) { count = ic.Count; }
             else if (pairs is KeyValuePair<TKey, TValue>[] array) { count = array.Length; }
 
-            Dictionary<TKey, TValue> temp =
-                count == -1 ? new Dictionary<TKey, TValue>() : new Dictionary<TKey, TValue>(count);
+            Dictionary<TKey, TValue> temp = count == -1
+                ? new Dictionary<TKey, TValue>()
+                : new Dictionary<TKey, TValue>(count);
+
             foreach (var pair in pairs)
             {
                 temp.Add(pair.Key, pair.Value);
@@ -117,7 +128,9 @@ namespace Oakbranch.Common.Collections
         public ReadOnlyObservableDictionary(IDictionary<TKey, TValue> source)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             _dictionary = new ReadOnlyDictionary<TKey, TValue>(source);
         }
@@ -130,9 +143,13 @@ namespace Oakbranch.Common.Collections
 
         public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value);
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionary.GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            ThrowIfDisposed();
+            return _dictionary.GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<KeyValuePair<TKey, TValue>>).GetEnumerator();
 
         private void ThrowIfDisposed()
         {

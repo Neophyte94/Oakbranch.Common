@@ -157,7 +157,13 @@ namespace Oakbranch.Common.Collections
 
         public ObservableKeyedList(IEnumerable<TValue> collection)
         {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
             _list = new List<TValue>(collection);
+
             if (!CheckDictionaryState())
             {
                 int count = _list.Count;
@@ -170,7 +176,9 @@ namespace Oakbranch.Common.Collections
                     {
                         if (i == j) continue;
                         if (GetKey(_list[j]).Equals(key))
+                        {
                             throw new ArgumentException("The specified collection contains duplicate items.");
+                        }
                     }
                 }
             }
@@ -502,10 +510,15 @@ namespace Oakbranch.Common.Collections
 
         public void Sort(Comparison<TValue> comparison)
         {
-            _list.Sort(comparison);
-            RaiseChangeNotificationEvents(
-                new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Reset));
+            ThrowIfDisposed();
+
+            if (_list.Count > 1)
+            {
+                _list.Sort(comparison);
+                RaiseChangeNotificationEvents(
+                    new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Reset));
+            }
         }
 
         public void TrimExcess()
@@ -518,6 +531,7 @@ namespace Oakbranch.Common.Collections
 
         public IEnumerator<TValue> GetEnumerator()
         {
+            ThrowIfDisposed();
             return _list.GetEnumerator();
         }
 

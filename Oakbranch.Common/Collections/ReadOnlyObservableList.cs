@@ -12,11 +12,15 @@ namespace Oakbranch.Common.Collections
     /// <see cref="INotifyPropertyChanged"/> and <see cref="IDisposable"/>.</para>
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class ReadOnlyObservableList<T> : ReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
+    public class ReadOnlyObservableList<T>
+        : ReadOnlyList<T>,
+        INotifyCollectionChanged,
+        INotifyPropertyChanged,
+        IDisposable
     {
         #region Instance props & fields
 
-        private bool m_IsDisposed;
+        private bool _isDisposed;
 
         #endregion
 
@@ -28,13 +32,12 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                if (!m_IsDisposed)
-                {
-                    m_CollectionChanged += value;
-                }
+                ThrowIfDisposed();
+                m_CollectionChanged += value;
             }
             remove
             {
+                if (_isDisposed) return;
                 m_CollectionChanged -= value;
             }
         }
@@ -45,7 +48,7 @@ namespace Oakbranch.Common.Collections
         {
             add
             {
-                if (!m_IsDisposed)
+                if (!_isDisposed)
                 {
                     m_PropertyChanged += value;
                 }
@@ -60,37 +63,33 @@ namespace Oakbranch.Common.Collections
 
         #region Instance constructors
 
-        public ReadOnlyObservableList() : base()
-        {
+        public ReadOnlyObservableList() : base() { }
 
-        }
+        public ReadOnlyObservableList(T[] items) : base(items) { }
 
-        public ReadOnlyObservableList(T[] items) : base(items)
-        {
+        public ReadOnlyObservableList(IEnumerable<T> items) : base(items) { }
 
-        }
-
-        public ReadOnlyObservableList(IEnumerable<T> items) : base(items)
-        {
-
-        }
-
-        public ReadOnlyObservableList(IList<T> items) : base(items)
-        {
-
-        }
+        public ReadOnlyObservableList(IList<T> items) : base(items) { }
 
         #endregion
 
         #region Instance methods
 
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
         public void Dispose()
         {
-            if (!m_IsDisposed)
+            if (!_isDisposed)
             {
+                _isDisposed = true;
                 m_CollectionChanged = null;
                 m_PropertyChanged = null;
-                m_IsDisposed = true;
             }
         }
 

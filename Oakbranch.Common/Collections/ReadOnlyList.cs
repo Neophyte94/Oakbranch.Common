@@ -180,20 +180,30 @@ namespace Oakbranch.Common.Collections
         public T[] CreateCopy(int startIndex, int length)
         {
             if (startIndex < 0 || startIndex >= _items.Length)
+            {
                 throw new ArgumentOutOfRangeException("The specified start index is out of the acceptable range.");
+            }
             if (length < 0 || startIndex + length > _items.Length)
+            {
                 throw new ArgumentOutOfRangeException("The specified length is out of the valid range.");
+            }
+
             T[] result = new T[length];
             for (int i = 0, j = startIndex; i != length; ++i, ++j)
             {
                 result[i] = _items[j];
             }
+
             return result;
         }
 
         public T[] ToArray()
         {
-            if (_count == 0) return null;
+            if (_count == 0)
+            {
+                return null;
+            }
+
             T[] result = new T[_count];
             _items.CopyTo(result, 0);
             return result;
@@ -201,13 +211,20 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlySpan<T> ToSpan()
         {
-            if (_count == 0) return new ReadOnlySpan<T>();
+            if (_count == 0)
+            {
+                return new ReadOnlySpan<T>();
+            }
+
             return new ReadOnlySpan<T>(_items);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (_count == 0) yield break;
+            if (_count == 0)
+            {
+                yield break;
+            }
 
             for (int i = 0; i != _count; ++i)
             {

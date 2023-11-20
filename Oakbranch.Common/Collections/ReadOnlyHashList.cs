@@ -64,6 +64,11 @@ namespace Oakbranch.Common.Collections
 
         public ReadOnlyHashList(T[] items)
         {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+            
             int count = items.Length;
             _items = new T[count];
             T item;

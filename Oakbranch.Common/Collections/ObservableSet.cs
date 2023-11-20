@@ -69,6 +69,11 @@ namespace Oakbranch.Common.Collections
 
         public ObservableSet(IEnumerable<T> collection)
         {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
             _items = new HashSet<T>(collection);
         }
 
@@ -79,6 +84,11 @@ namespace Oakbranch.Common.Collections
 
         public ObservableSet(IEnumerable<T> collection, IEqualityComparer<T> equalityComparer)
         {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
             _items = new HashSet<T>(collection, equalityComparer);
         }
 

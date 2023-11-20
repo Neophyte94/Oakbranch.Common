@@ -57,10 +57,13 @@ namespace Oakbranch.Common.Collections
         public FreezableList(T[] items)
         {
             if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
             _count = items.Length;
             _items = new T[Math.Max(_count, 1)];
+
             for (int i = 0; i != _count; ++i)
             {
                 _items[i] = items[i];
@@ -70,9 +73,12 @@ namespace Oakbranch.Common.Collections
         public FreezableList(ICollection<T> items)
         {
             if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
             _items = new T[Math.Max(items.Count, 1)];
+
             foreach (T item in items)
             {
                 _items[_count++] = item;
@@ -82,12 +88,17 @@ namespace Oakbranch.Common.Collections
         public FreezableList(IEnumerable<T> items)
         {
             if (items == null)
+            {
                 throw new ArgumentNullException(nameof(items));
+            }
 
             _items = items.ToArray();
             _count = _items.Length;
+
             if (_count == 0)
+            {
                 _items = new T[1];
+            }
         }
 
         #endregion
@@ -127,16 +138,24 @@ namespace Oakbranch.Common.Collections
             {
                 for (int i = 0; i < _count;)
                 {
-                    if (_items[i++] == null) return true;
+                    if (_items[i++] == null)
+                    {
+                        return true;
+                    }
                 }
+
                 return false;
             }
             else
             {
                 for (int i = 0; i < _count;)
                 {
-                    if (item.Equals(_items[i++])) return true;
+                    if (item.Equals(_items[i++]))
+                    {
+                        return true;
+                    }
                 }
+
                 return false;
             }
         }
@@ -144,12 +163,18 @@ namespace Oakbranch.Common.Collections
         public void CopyTo(T[] array, int arrayIndex)
         {
             if (array == null)
+            {
                 throw new ArgumentNullException(nameof(array));
+            }
 
             int count = _count;
             if (array.Length - arrayIndex < count)
-                throw new ArgumentException($"The specified array is not large enough ({array.Length}) " +
+            {
+                throw new ArgumentException(
+                    $"The specified array is not large enough ({array.Length}) " +
                     $"to contain {count} items from the index {arrayIndex}.");
+            }
+
 
             for (int i = 0, j = arrayIndex; i != count;)
             {
@@ -163,16 +188,24 @@ namespace Oakbranch.Common.Collections
             {
                 for (int i = 0; i < _count; ++i)
                 {
-                    if (_items[i] == null) return i;
+                    if (_items[i] == null)
+                    {
+                        return i;
+                    }
                 }
+
                 return -1;
             }
             else
             {
                 for (int i = 0; i < _count; ++i)
                 {
-                    if (item.Equals(_items[i])) return i;
+                    if (item.Equals(_items[i]))
+                    {
+                        return i;
+                    }
                 }
+
                 return -1;
             }
         }
@@ -199,7 +232,9 @@ namespace Oakbranch.Common.Collections
 
             ThrowIfFrozen();
             if (index < 0 || index > _count)
+            {
                 throw new IndexOutOfRangeException();
+            }
 
             _items[index] = item;            
             ++_version;
@@ -234,12 +269,15 @@ namespace Oakbranch.Common.Collections
         {
             ThrowIfFrozen();
             if (index < 0 || index >= _count)
+            {
                 throw new IndexOutOfRangeException();
+            }
 
             for (int i = index + 1; i < _count; ++i)
             {
                 _items[index - 1] = _items[index];
             }
+
             _items[index] = default;
             --_count;
             ++_version;
