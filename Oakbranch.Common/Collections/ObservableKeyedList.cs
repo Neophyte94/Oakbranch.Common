@@ -47,9 +47,13 @@ namespace Oakbranch.Common.Collections
             set
             {
                 ThrowIfDisposed();
+                if (value is null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
                 if (index < 0 || index >= _list.Count)
                 {
-                    throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
+                    ThrowArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
                 }
 
                 ValidateNewItem(value);
@@ -74,7 +78,7 @@ namespace Oakbranch.Common.Collections
                         TKey existingKey = GetKey(_list[i++]);
                         if (existingKey.Equals(newKey) && !existingKey.Equals(oldKey))
                         {
-                            throw GenerateItemAlreadyExistsException();
+                            ThrowItemAlreadyExistsException(newKey);
                         }
                     }
                 }
@@ -170,7 +174,9 @@ namespace Oakbranch.Common.Collections
                 for (int i = 0; i != count; ++i)
                 {
                     TValue item = _list[i];
+                    ThrowNullElementExceptionIfNull(item);
                     ValidateNewItem(item);
+
                     TKey key = GetKey(item);
                     for (int j = 0; j != count; ++j)
                     {
@@ -195,17 +201,25 @@ namespace Oakbranch.Common.Collections
 
         #region Static methods
 
-        private static ArgumentOutOfRangeException GenerateArgumentOutOfRangeException(
+        private static void ThrowArgumentOutOfRangeException(
             string paramName, int input, int minInclusive, int maxInclusive)
         {
-            return new ArgumentOutOfRangeException(
+            throw new ArgumentOutOfRangeException(
                 paramName,
                 $"The specified value ({input}) is out of the current acceptable range [{minInclusive} ; {maxInclusive}].");
         }
 
-        private static ArgumentException GenerateItemAlreadyExistsException()
+        private static void ThrowItemAlreadyExistsException(TKey key)
         {
-            return new ArgumentException("The specified item has already been added to the keyed list.");
+            throw new ArgumentException($"An item with the key {key} already exists in the keyed list.");
+        }
+
+        private static void ThrowNullElementExceptionIfNull(TValue item)
+        {
+            if (item is null)
+            {
+                throw new ArgumentException("The specified collection contains null elements.");
+            }
         }
 
         #endregion
@@ -264,6 +278,12 @@ namespace Oakbranch.Common.Collections
         public void Add(TValue item)
         {
             ThrowIfDisposed();
+            if (item is null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+            ValidateNewItem(item);
+
             InsertInternal(item, -1);
         }
 
@@ -302,6 +322,9 @@ namespace Oakbranch.Common.Collections
             {
                 foreach (TValue item in items)
                 {
+                    ThrowNullElementExceptionIfNull(item);
+                    ValidateNewItem(item);
+
                     TKey key = GetKey(item);
                     _dictionary.Add(key, item);
                 }
@@ -310,13 +333,17 @@ namespace Oakbranch.Common.Collections
             {
                 foreach (TValue item in items)
                 {
+                    ThrowNullElementExceptionIfNull(item);
+                    ValidateNewItem(item);
+
                     TKey key = GetKey(item);
                     int count = _list.Count;
+
                     for (int i = 0; i != count;)
                     {
                         if (GetKey(_list[i++]).Equals(key))
                         {
-                            throw GenerateItemAlreadyExistsException();
+                            ThrowItemAlreadyExistsException(key);
                         }
                     }
                 }
@@ -372,9 +399,14 @@ namespace Oakbranch.Common.Collections
         public void Insert(int index, TValue item)
         {
             ThrowIfDisposed();
+            if (item is null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+            ValidateNewItem(item);
             if (index < 0 || index > _list.Count)
             {
-                throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count);
+                ThrowArgumentOutOfRangeException(nameof(index), index, 0, _list.Count);
             }
 
             InsertInternal(item, index);
@@ -383,7 +415,7 @@ namespace Oakbranch.Common.Collections
         private void InsertInternal(TValue item, int index)
         {
             // Ensure that the new item is considered valid by the derived class.
-            ValidateNewItem(item);
+            
             TKey key = GetKey(item);
 
             // Update the internal dictionary.
@@ -398,7 +430,7 @@ namespace Oakbranch.Common.Collections
                 {
                     if (GetKey(_list[i++]).Equals(key))
                     {
-                        throw GenerateItemAlreadyExistsException();
+                        ThrowItemAlreadyExistsException(key);
                     }
                 }
             }
@@ -463,7 +495,7 @@ namespace Oakbranch.Common.Collections
             ThrowIfDisposed();
             if (index < 0 || index >= _list.Count)
             {
-                throw GenerateArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
+                ThrowArgumentOutOfRangeException(nameof(index), index, 0, _list.Count - 1);
             }
 
             TValue item = _list[index];
