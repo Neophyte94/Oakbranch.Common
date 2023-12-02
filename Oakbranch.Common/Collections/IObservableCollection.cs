@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
 
 namespace Oakbranch.Common.Collections
 {
@@ -9,10 +7,8 @@ namespace Oakbranch.Common.Collections
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
     public interface IObservableCollection<T> : 
-        ICollection<T>,
-        IReadOnlyCollection<T>,
-        INotifyPropertyChanged,
-        INotifyCollectionChanged
+        IReadOnlyObservableCollection<T>,
+        ICollection<T>
     {
         // The property is declared new to remove ambiguity between two base interfaces when accessing Count.
         new int Count { get; }

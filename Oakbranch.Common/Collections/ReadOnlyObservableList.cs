@@ -12,10 +12,9 @@ namespace Oakbranch.Common.Collections
     /// <see cref="INotifyPropertyChanged"/> and <see cref="IDisposable"/>.</para>
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class ReadOnlyObservableList<T>
-        : ReadOnlyList<T>,
-        INotifyCollectionChanged,
-        INotifyPropertyChanged,
+    public class ReadOnlyObservableList<T> :
+        ImmutableList<T>,
+        IReadOnlyObservableList<T>,
         IDisposable
     {
         #region Instance props & fields
@@ -26,36 +25,29 @@ namespace Oakbranch.Common.Collections
 
         #region Instance events
 
-        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
-        private NotifyCollectionChangedEventHandler m_CollectionChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add
             {
                 ThrowIfDisposed();
-                m_CollectionChanged += value;
+                return;
             }
             remove
             {
-                if (_isDisposed) return;
-                m_CollectionChanged -= value;
+                return;
             }
         }
 
-        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Formal implementation")]
-        private PropertyChangedEventHandler m_PropertyChanged;
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
             {
-                if (!_isDisposed)
-                {
-                    m_PropertyChanged += value;
-                }
+                ThrowIfDisposed();
+                return;
             }
             remove
             {
-                m_PropertyChanged -= value;
+                return;
             }
         }
 
@@ -75,7 +67,7 @@ namespace Oakbranch.Common.Collections
 
         #region Instance methods
 
-        private void ThrowIfDisposed()
+        protected void ThrowIfDisposed()
         {
             if (_isDisposed)
             {
@@ -87,9 +79,24 @@ namespace Oakbranch.Common.Collections
         {
             if (!_isDisposed)
             {
+                OnDisposing(true);
                 _isDisposed = true;
-                m_CollectionChanged = null;
-                m_PropertyChanged = null;
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        protected virtual void OnDisposing(bool releaseManaged) { }
+
+        #endregion
+
+        #region Destructor
+
+        ~ReadOnlyObservableList()
+        {
+            if (!_isDisposed)
+            {
+                OnDisposing(false);
+                _isDisposed = true;
             }
         }
 

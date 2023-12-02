@@ -14,8 +14,9 @@ namespace Oakbranch.Common.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
-    public sealed class ReadOnlyObservableDictionary<TKey, TValue>
-        : IReadOnlyObservableDictionary<TKey, TValue>, IDisposable
+    public sealed class ReadOnlyObservableDictionary<TKey, TValue> :
+        IReadOnlyObservableDictionary<TKey, TValue>,
+        IDisposable
     {
         #region Instance props & fields
 

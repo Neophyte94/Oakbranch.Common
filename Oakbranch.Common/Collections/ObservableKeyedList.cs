@@ -12,7 +12,9 @@ namespace Oakbranch.Common.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of keys that uniquely identify elements in the list.</typeparam>
     /// <typeparam name="TValue">The type of elements in the list.</typeparam>
-    public abstract class ObservableKeyedList<TKey, TValue> : IObservableList<TValue>, IDisposable
+    public abstract class ObservableKeyedList<TKey, TValue> :
+        IObservableList<TValue>,
+        IDisposable
     {
         #region Constants
 
@@ -47,7 +49,7 @@ namespace Oakbranch.Common.Collections
             set
             {
                 ThrowIfDisposed();
-                if (value is null)
+                if (value == null)
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
@@ -216,7 +218,7 @@ namespace Oakbranch.Common.Collections
 
         private static void ThrowNullElementExceptionIfNull(TValue item)
         {
-            if (item is null)
+            if (item == null)
             {
                 throw new ArgumentException("The specified collection contains null elements.");
             }
@@ -278,7 +280,7 @@ namespace Oakbranch.Common.Collections
         public void Add(TValue item)
         {
             ThrowIfDisposed();
-            if (item is null)
+            if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
@@ -399,7 +401,7 @@ namespace Oakbranch.Common.Collections
         public void Insert(int index, TValue item)
         {
             ThrowIfDisposed();
-            if (item is null)
+            if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
